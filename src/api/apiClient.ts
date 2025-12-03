@@ -2,7 +2,8 @@ import axios from "axios";
 import {getItem, removeItem, setItem} from "../utils/utils.ts";
 
 
-export const baseUrl = "http://185.217.131.134:8080/api"
+// export const baseUrl = "http://185.217.131.134:8080/api"
+export const baseUrl = "https://westep.uz/api"
 
 const apiClient = axios.create({
     baseURL: baseUrl,
