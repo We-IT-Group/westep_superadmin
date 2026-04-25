@@ -5,7 +5,7 @@ const envBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
 const isLocalDevelopmentHost =
     typeof window !== "undefined" &&
     (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-const defaultBaseUrl = isLocalDevelopmentHost ? "http://localhost:8080/api" : "/api";
+const defaultBaseUrl = isLocalDevelopmentHost ? "http://localhost:8080/api" : "https://westep.uz/api";
 
 // export const baseUrl = "http://185.217.131.134:8080/api"
 export const baseUrl = envBaseUrl || defaultBaseUrl;
