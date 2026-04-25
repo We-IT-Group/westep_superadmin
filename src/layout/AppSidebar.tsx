@@ -1,11 +1,13 @@
 import {useCallback, useEffect, useRef, useState} from "react";
 import {Link, useLocation} from "react-router";
-import logo from "../assets/logo.svg"
+import lightLogo from "../assets/westep-logo.png"
+import darkLogo from "../assets/westep-logo-dark.png"
 // Assume these icons are imported from an icon library
 import {
     BoxCubeIcon,
 
     ChevronDownIcon,
+    DocsIcon,
     GridIcon,
     HorizontaLDots,
 
@@ -32,6 +34,11 @@ const navItems: NavItem[] = [
         icon: <UserCircleIcon/>,
         name: "Lavozimlar",
         path: "/roles",
+    },
+    {
+        icon: <DocsIcon/>,
+        name: "Business Domains",
+        path: "/business-domains",
     },
     // {
     //     icon: <CalenderIcon/>,
@@ -310,26 +317,36 @@ const AppSidebar: React.FC = () => {
                         <>
                             <img
                                 className="dark:hidden"
-                                src={logo}
-                                alt="Logo"
+                                src={darkLogo}
+                                alt="Westep Logo"
                                 width={150}
-                                height={40}
+                                height={44}
                             />
                             <img
                                 className="hidden dark:block"
-                                src={logo}
-                                alt="Logo"
+                                src={lightLogo}
+                                alt="Westep Logo"
                                 width={150}
-                                height={40}
+                                height={44}
                             />
                         </>
                     ) : (
-                        <img
-                            src={logo}
-                            alt="Logo"
-                            width={200}
-                            height={32}
-                        />
+                        <>
+                            <img
+                                src={darkLogo}
+                                alt="Westep Logo"
+                                width={52}
+                                height={52}
+                                className="dark:hidden"
+                            />
+                            <img
+                                src={lightLogo}
+                                alt="Westep Logo"
+                                width={52}
+                                height={52}
+                                className="hidden dark:block"
+                            />
+                        </>
                     )}
                 </Link>
             </div>

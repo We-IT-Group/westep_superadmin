@@ -5,7 +5,8 @@ import {useSidebar} from "../context/SidebarContext";
 import {ThemeToggleButton} from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
-import logo from "../assets/logo.svg";
+import lightLogo from "../assets/westep-logo.png";
+import darkLogo from "../assets/westep-logo-dark.png";
 
 const AppHeader: React.FC = () => {
     const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -89,16 +90,17 @@ const AppHeader: React.FC = () => {
                     <Link to="/" className="lg:hidden">
                         <img
                             className="dark:hidden"
-                            src={logo}
-                            alt="Logo"
+                            src={darkLogo}
+                            alt="Westep Logo"
                             width={132}
-                            height={32}
+                            height={40}
                         />
                         <img
                             className="hidden dark:block"
-                            src={logo}
+                            src={lightLogo}
+                            alt="Westep Logo"
                             width={132}
-                            height={32}
+                            height={40}
                         />
                     </Link>
 
