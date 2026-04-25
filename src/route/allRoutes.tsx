@@ -5,6 +5,8 @@ import UserProfiles from "../pages/UserProfiles.tsx";
 import Roles from "../pages/Roles/Roles.tsx";
 import AddRole from "../pages/Roles/AddRole.tsx";
 import Logout from "../pages/AuthPages/Logout.tsx";
+import BusinessDomainsPage from "../pages/BusinessDomains/BusinessDomains.tsx";
+import AddBusinessDomain from "../pages/BusinessDomains/AddBusinessDomain.tsx";
 
 
 export const authProtectedRoutes = [
@@ -12,6 +14,9 @@ export const authProtectedRoutes = [
     {path: "/roles/update/:id", element: <AddRole/>}, // oddiy route
     {path: "/roles/add", element: <AddRole/>}, // oddiy route
     {path: "/roles", element: <Roles/>}, // oddiy route
+    {path: "/business-domains/update/:id", element: <AddBusinessDomain/>},
+    {path: "/business-domains/add", element: <AddBusinessDomain/>},
+    {path: "/business-domains", element: <BusinessDomainsPage/>},
 
     // Others Page
     {path: "/profile", element: <UserProfiles/>},
