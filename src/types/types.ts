@@ -12,6 +12,42 @@ export interface Business {
     description?: string;
 }
 
+export type PaymentProvider = "PAYME" | "CLICK" | "UZUM" | "STRIPE";
+export type PaymentMode = "TEST" | "PROD";
+export type PaymentSettingsSourceType = "BUSINESS" | "PLATFORM_DEFAULT";
+
+export interface PaymentSettings {
+    id: string;
+    businessId?: string | null;
+    businessName?: string | null;
+    provider: PaymentProvider;
+    displayName?: string | null;
+    active: boolean;
+    primaryConfig: boolean;
+    mode: PaymentMode;
+    merchantId?: string | null;
+    login?: string | null;
+    secretConfigured: boolean;
+    callbackUrl?: string | null;
+    priority?: number | null;
+    sourceType?: PaymentSettingsSourceType | null;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface PaymentSettingsFormValues {
+    provider: PaymentProvider;
+    displayName: string;
+    mode: PaymentMode;
+    merchantId: string;
+    login: string;
+    secretKey: string;
+    callbackUrl: string;
+    active: boolean;
+    primaryConfig: boolean;
+    priority: number;
+}
+
 export interface BusinessDomain {
     id: string;
     businessId: string;

@@ -8,6 +8,7 @@ import {
 
     ChevronDownIcon,
     DocsIcon,
+    DollarLineIcon,
     GridIcon,
     HorizontaLDots,
 
@@ -36,9 +37,19 @@ const navItems: NavItem[] = [
         path: "/roles",
     },
     {
+        icon: <BoxCubeIcon/>,
+        name: "Bizneslar",
+        path: "/businesses",
+    },
+    {
         icon: <DocsIcon/>,
         name: "Business Domains",
         path: "/business-domains",
+    },
+    {
+        icon: <DollarLineIcon/>,
+        name: "Platform Payment Settings",
+        path: "/platform-payment-settings",
     },
     // {
     //     icon: <CalenderIcon/>,
