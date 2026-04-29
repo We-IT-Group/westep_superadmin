@@ -48,7 +48,7 @@ export default function PaymentSettingsFormModal({
         validationSchema: Yup.object({
             provider: Yup.string().required("Provider tanlanishi kerak"),
             displayName: Yup.string().trim(),
-            mode: Yup.string().required("Mode tanlanishi kerak"),
+            mode: Yup.string().required("Rejim tanlanishi kerak"),
             merchantId: Yup.string().test("merchant-required", "Merchant ID kiritilishi kerak", function (value) {
                 return this.parent.provider !== "PAYME" || Boolean(value?.trim());
             }),
@@ -73,7 +73,7 @@ export default function PaymentSettingsFormModal({
                 }),
             active: Yup.boolean().required(),
             primaryConfig: Yup.boolean().required(),
-            priority: Yup.number().typeError("Priority raqam bo'lishi kerak").required("Priority kiritilishi kerak"),
+            priority: Yup.number().typeError("Ustuvorlik raqam bo'lishi kerak").required("Ustuvorlik kiritilishi kerak"),
         }),
         onSubmit: async (values, helpers) => {
             try {
@@ -139,7 +139,7 @@ export default function PaymentSettingsFormModal({
                         </div>
 
                         <div>
-                            <Label htmlFor="displayName">Display name</Label>
+                            <Label htmlFor="displayName">Ko'rsatish nomi</Label>
                             <input
                                 id="displayName"
                                 name="displayName"
@@ -152,7 +152,7 @@ export default function PaymentSettingsFormModal({
                         </div>
 
                         <div>
-                            <Label htmlFor="mode">Mode</Label>
+                            <Label htmlFor="mode">Rejim</Label>
                             <select
                                 id="mode"
                                 name="mode"
@@ -173,7 +173,7 @@ export default function PaymentSettingsFormModal({
                         </div>
 
                         <div>
-                            <Label htmlFor="priority">Priority</Label>
+                            <Label htmlFor="priority">Ustuvorlik</Label>
                             <input
                                 id="priority"
                                 name="priority"
@@ -237,7 +237,7 @@ export default function PaymentSettingsFormModal({
                         </div>
 
                         <div className="md:col-span-2">
-                            <Label htmlFor="secretKey">Secret key</Label>
+                            <Label htmlFor="secretKey">Secret kalit</Label>
                             <input
                                 id="secretKey"
                                 name="secretKey"
@@ -246,11 +246,11 @@ export default function PaymentSettingsFormModal({
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
                                 className={inputClassName}
-                                placeholder={isEdit ? "Yangi secret key kiritilsa update bo'ladi" : "Secret key"}
+                                placeholder={isEdit ? "Yangi secret kalit kiritilsa yangilanadi" : "Secret kalit"}
                             />
                             {isEdit && setting?.secretConfigured && (
                                 <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
-                                    Secret key already configured
+                                    Secret kalit allaqachon sozlangan
                                 </p>
                             )}
                             {formik.touched.secretKey && formik.errors.secretKey && (
@@ -267,7 +267,7 @@ export default function PaymentSettingsFormModal({
                                 onChange={(e) => formik.setFieldValue("active", e.target.checked)}
                                 className="h-4 w-4 rounded border-gray-300 text-brand-500"
                             />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">Active</span>
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Faol</span>
                         </label>
                         <label className="flex items-center gap-3">
                             <input
@@ -276,7 +276,7 @@ export default function PaymentSettingsFormModal({
                                 onChange={(e) => formik.setFieldValue("primaryConfig", e.target.checked)}
                                 className="h-4 w-4 rounded border-gray-300 text-brand-500"
                             />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">Primary config</span>
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Asosiy konfiguratsiya</span>
                         </label>
                     </div>
 

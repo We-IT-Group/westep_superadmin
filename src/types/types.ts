@@ -10,6 +10,16 @@ export interface Business {
     address?: string;
     phone?: string;
     description?: string;
+    studentsCount?: number;
+    ownerId?: string;
+    ownerFullName?: string;
+    assistants?: Record<string, string>;
+    members?: Array<{
+        id: string;
+        fullName: string;
+        phone: string;
+        role: string;
+    }>;
 }
 
 export type PaymentProvider = "PAYME" | "CLICK" | "UZUM" | "STRIPE";
@@ -48,6 +58,30 @@ export interface PaymentSettingsFormValues {
     priority: number;
 }
 
+export interface CourseModerationListResponse {
+    page: number;
+    size: number;
+    totalItems: number;
+    totalPages: number;
+    courses: CourseModerationCourse[];
+}
+
+export interface CourseModerationCourse {
+    id: string;
+    name: string;
+    description?: string;
+    status: string;
+    statusNote?: string | null;
+    isPublished: boolean;
+    active: boolean;
+    businessId?: string | null;
+    studentsCount: number;
+    price?: number | null;
+    lessonsCount: number;
+    createdAt?: string;
+    publishedAt?: string | null;
+}
+
 export interface BusinessDomain {
     id: string;
     businessId: string;
@@ -64,6 +98,54 @@ export interface BusinessDomainFormValues {
     landingHost: string;
     studentHost: string;
     active: boolean;
+}
+
+export interface CourseLanguage {
+    id: string;
+    name: string;
+    code: string;
+    active: boolean;
+}
+
+export interface CourseLanguageFormValues {
+    name: string;
+    code: string;
+}
+
+export interface TaxonomyCategory {
+    id: string;
+    name: string;
+    description?: string | null;
+}
+
+export interface TaxonomySubcategory {
+    id: string;
+    name: string;
+    description?: string | null;
+    categoryId: string;
+    categoryName: string;
+}
+
+export interface TaxonomySkillTag {
+    id: string;
+    name: string;
+    description?: string | null;
+}
+
+export interface TaxonomyCategoryFormValues {
+    name: string;
+    description: string;
+}
+
+export interface TaxonomySubcategoryFormValues {
+    name: string;
+    description: string;
+    categoryId: string;
+}
+
+export interface TaxonomySkillTagFormValues {
+    name: string;
+    description: string;
 }
 
 export interface User {

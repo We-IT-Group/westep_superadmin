@@ -67,9 +67,9 @@ export default function AddBusinessDomain() {
 
     return (
         <div>
-            <PageMeta title="Business Domain" description="Business va domain bog'lash"/>
-            <PageBreadcrumb pageTitle={id ? "Business Domain tahrirlash" : "Business Domain qo'shish"}/>
-            <ComponentCard title="Domain mapping">
+            <PageMeta title="Biznes domeni" description="Biznes va domen bog'lash"/>
+            <PageBreadcrumb pageTitle={id ? "Biznes domenini tahrirlash" : "Biznes domenini qo'shish"}/>
+            <ComponentCard title="Domen bog'lash">
                 <form
                     onSubmit={(e) => {
                         e.preventDefault();

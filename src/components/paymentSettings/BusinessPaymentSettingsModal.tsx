@@ -51,17 +51,17 @@ function SettingCard({
                         </h4>
                         <SettingsBadge label={setting.provider} tone="blue"/>
                         <SettingsBadge
-                            label={setting.sourceType === "PLATFORM_DEFAULT" ? "Platform Default" : "Business"}
+                            label={setting.sourceType === "PLATFORM_DEFAULT" ? "Platforma standarti" : "Biznes"}
                             tone={setting.sourceType === "PLATFORM_DEFAULT" ? "orange" : "green"}
                         />
                     </div>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Mode: {setting.mode} | Login: {formatValue(setting.login)}
+                        Rejim: {setting.mode} | Login: {formatValue(setting.login)}
                     </p>
                 </div>
                 {onEdit && (
                     <Button size="sm" variant="outline" onClick={() => onEdit(setting)}>
-                        Edit
+                        Tahrirlash
                     </Button>
                 )}
             </div>
@@ -76,13 +76,13 @@ function SettingCard({
                     <p className="font-medium text-gray-900 dark:text-white break-all">{formatValue(setting.callbackUrl)}</p>
                 </div>
                 <div>
-                    <p className="text-gray-500 dark:text-gray-400">Priority</p>
+                    <p className="text-gray-500 dark:text-gray-400">Ustuvorlik</p>
                     <p className="font-medium text-gray-900 dark:text-white">{formatValue(setting.priority, "0")}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <SettingsBadge label={setting.active ? "Active" : "Inactive"} tone={setting.active ? "green" : "gray"}/>
-                    <SettingsBadge label={setting.primaryConfig ? "Primary" : "Secondary"} tone={setting.primaryConfig ? "blue" : "gray"}/>
-                    <SettingsBadge label={setting.secretConfigured ? "Secret Configured" : "Secret Missing"} tone={setting.secretConfigured ? "green" : "orange"}/>
+                    <SettingsBadge label={setting.active ? "Faol" : "Nofaol"} tone={setting.active ? "green" : "gray"}/>
+                    <SettingsBadge label={setting.primaryConfig ? "Asosiy" : "Qo'shimcha"} tone={setting.primaryConfig ? "blue" : "gray"}/>
+                    <SettingsBadge label={setting.secretConfigured ? "Secret sozlangan" : "Secret yo'q"} tone={setting.secretConfigured ? "green" : "orange"}/>
                 </div>
             </div>
         </div>
@@ -154,24 +154,24 @@ export default function BusinessPaymentSettingsModal({business, isOpen, onClose}
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                         <div>
                             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                Payment Settings: {business?.name}
+                                To'lov sozlamalari: {business?.name}
                             </h3>
                             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                Business-level override va effective payment provider konfiguratsiyasi.
+                                Biznes darajasidagi override va amalda ishlayotgan to'lov provider konfiguratsiyasi.
                             </p>
                         </div>
                         <Button size="sm" onClick={handleCreate}>
-                            Add Setting
+                            Sozlama qo'shish
                         </Button>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                        <ComponentCard title="Business Settings" desc="Faqat shu businessga yozilgan konfiguratsiyalar">
+                        <ComponentCard title="Biznes sozlamalari" desc="Faqat shu biznesga yozilgan konfiguratsiyalar">
                             {isBusinessPending ? (
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Yuklanmoqda...</p>
                             ) : businessSettings.length === 0 ? (
                                 <div className="rounded-xl border border-dashed border-gray-300 px-4 py-6 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                                    Bu business uchun alohida payment setting yo'q.
+                                    Bu biznes uchun alohida to'lov sozlamasi yo'q.
                                 </div>
                             ) : (
                                 <div className="space-y-4">
@@ -182,13 +182,13 @@ export default function BusinessPaymentSettingsModal({business, isOpen, onClose}
                             )}
                         </ComponentCard>
 
-                        <ComponentCard title="Effective Settings" desc="Backend resolve qilgan real ishlayotgan konfiguratsiya">
+                        <ComponentCard title="Amaldagi sozlamalar" desc="Backend aniqlagan real ishlayotgan konfiguratsiya">
                             <div className="flex flex-wrap gap-2">
                                 {isUsingPlatformDefault && (
-                                    <SettingsBadge label="Platform default is being used" tone="orange"/>
+                                    <SettingsBadge label="Platforma standarti ishlayapti" tone="orange"/>
                                 )}
                                 {hasBusinessOverride && (
-                                    <SettingsBadge label="Business override is active" tone="green"/>
+                                    <SettingsBadge label="Biznes override faol" tone="green"/>
                                 )}
                             </div>
 
@@ -196,7 +196,7 @@ export default function BusinessPaymentSettingsModal({business, isOpen, onClose}
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Yuklanmoqda...</p>
                             ) : effectiveSettings.length === 0 ? (
                                 <div className="rounded-xl border border-dashed border-gray-300 px-4 py-6 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                                    No payment provider configured
+                                    To'lov provider sozlanmagan
                                 </div>
                             ) : (
                                 <div className="space-y-4">
@@ -216,7 +216,7 @@ export default function BusinessPaymentSettingsModal({business, isOpen, onClose}
                 setting={editingSetting}
                 onSubmit={handleSubmit}
                 isPending={isCreatePending || isUpdatePending}
-                title={editingSetting ? "Edit Business Payment Setting" : "Create Business Payment Setting"}
+                title={editingSetting ? "Biznes to'lov sozlamasini tahrirlash" : "Biznes to'lov sozlamasini yaratish"}
             />
         </>
     );

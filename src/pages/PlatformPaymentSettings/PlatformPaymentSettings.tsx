@@ -71,7 +71,7 @@ export default function PlatformPaymentSettingsPage() {
         {accessorKey: "provider", header: "Provider"},
         {
             accessorKey: "displayName",
-            header: "Display Name",
+            header: "Ko'rsatish nomi",
             cell: ({row}) => row.original.displayName || "—",
         },
         {
@@ -86,30 +86,30 @@ export default function PlatformPaymentSettingsPage() {
         },
         {
             accessorKey: "mode",
-            header: "Mode",
+            header: "Rejim",
             cell: ({row}) => <Badge label={row.original.mode} tone={row.original.mode === "PROD" ? "green" : "orange"}/>,
         },
         {
             accessorKey: "active",
-            header: "Active",
-            cell: ({row}) => <Badge label={row.original.active ? "Active" : "Inactive"} tone={row.original.active ? "green" : "gray"}/>,
+            header: "Faollik",
+            cell: ({row}) => <Badge label={row.original.active ? "Faol" : "Nofaol"} tone={row.original.active ? "green" : "gray"}/>,
         },
         {
             accessorKey: "primaryConfig",
-            header: "Primary",
-            cell: ({row}) => <Badge label={row.original.primaryConfig ? "Primary" : "Secondary"} tone={row.original.primaryConfig ? "blue" : "gray"}/>,
+            header: "Asosiy",
+            cell: ({row}) => <Badge label={row.original.primaryConfig ? "Asosiy" : "Qo'shimcha"} tone={row.original.primaryConfig ? "blue" : "gray"}/>,
         },
         {
             accessorKey: "secretConfigured",
             header: "Secret",
-            cell: ({row}) => <Badge label={row.original.secretConfigured ? "Configured" : "Missing"} tone={row.original.secretConfigured ? "green" : "orange"}/>,
+            cell: ({row}) => <Badge label={row.original.secretConfigured ? "Sozlangan" : "Yo'q"} tone={row.original.secretConfigured ? "green" : "orange"}/>,
         },
         {
             id: "actions",
             header: "",
             cell: ({row}) => (
                 <Button size="sm" variant="outline" onClick={() => handleEdit(row.original)}>
-                    Edit
+                    Tahrirlash
                 </Button>
             ),
         },
@@ -118,16 +118,16 @@ export default function PlatformPaymentSettingsPage() {
     return (
         <>
             {toast && <StatusToast message={toast.message} type={toast.type} onClose={() => setToast(null)}/>}
-            <PageMeta title="Platform Payment Settings" description="Platform default payment settings"/>
-            <PageBreadcrumb pageTitle="Platform Payment Settings"/>
+            <PageMeta title="Platforma to'lov sozlamalari" description="Platforma standart to'lov sozlamalari"/>
+            <PageBreadcrumb pageTitle="Platforma to'lov sozlamalari"/>
             <div className="space-y-6">
                 <ComponentCard
-                    title="Platform Payment Settings"
-                    desc="Platform default provider konfiguratsiyalari. Business override bo'lmasa shu config ishlaydi."
+                    title="Platforma to'lov sozlamalari"
+                    desc="Platforma standart provider konfiguratsiyalari. Biznes override bo'lmasa shu sozlama ishlaydi."
                 >
                     <div className="flex justify-end">
                         <Button size="sm" onClick={handleCreate}>
-                            Create Setting
+                            Sozlama qo'shish
                         </Button>
                     </div>
                     <CommonTable data={data} columns={columns} isPending={isPending}/>
@@ -140,7 +140,7 @@ export default function PlatformPaymentSettingsPage() {
                 setting={editingSetting}
                 onSubmit={handleSubmit}
                 isPending={isCreatePending || isUpdatePending}
-                title={editingSetting ? "Edit Platform Payment Setting" : "Create Platform Payment Setting"}
+                title={editingSetting ? "Platforma to'lov sozlamasini tahrirlash" : "Platforma to'lov sozlamasini yaratish"}
             />
         </>
     );

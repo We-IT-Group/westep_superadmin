@@ -9,6 +9,10 @@ import BusinessDomainsPage from "../pages/BusinessDomains/BusinessDomains.tsx";
 import AddBusinessDomain from "../pages/BusinessDomains/AddBusinessDomain.tsx";
 import BusinessesPage from "../pages/Businesses/Businesses.tsx";
 import PlatformPaymentSettingsPage from "../pages/PlatformPaymentSettings/PlatformPaymentSettings.tsx";
+import CourseModerationPage from "../pages/CourseModeration/CourseModeration.tsx";
+import CourseLanguagesPage from "../pages/CourseLanguages/CourseLanguages.tsx";
+import AddCourseLanguage from "../pages/CourseLanguages/AddCourseLanguage.tsx";
+import TaxonomyPage from "../pages/Taxonomy/TaxonomyPage.tsx";
 
 
 export const authProtectedRoutes = [
@@ -18,6 +22,11 @@ export const authProtectedRoutes = [
     {path: "/roles", element: <Roles/>}, // oddiy route
     {path: "/businesses", element: <BusinessesPage/>},
     {path: "/platform-payment-settings", element: <PlatformPaymentSettingsPage/>},
+    {path: "/course-languages/update/:id", element: <AddCourseLanguage/>},
+    {path: "/course-languages/add", element: <AddCourseLanguage/>},
+    {path: "/course-languages", element: <CourseLanguagesPage/>},
+    {path: "/taxonomy", element: <TaxonomyPage/>},
+    {path: "/course-moderation", element: <CourseModerationPage/>},
     {path: "/business-domains/update/:id", element: <AddBusinessDomain/>},
     {path: "/business-domains/add", element: <AddBusinessDomain/>},
     {path: "/business-domains", element: <BusinessDomainsPage/>},

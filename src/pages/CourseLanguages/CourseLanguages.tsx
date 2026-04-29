@@ -1,35 +1,21 @@
+import {useState} from "react";
+import {ColumnDef} from "@tanstack/react-table";
+import {Link} from "react-router";
+import {PencilIcon, TrashBinIcon} from "../../icons";
 import ComponentCard from "../../components/common/ComponentCard";
 import PageMeta from "../../components/common/PageMeta";
 import CommonTable from "../../components/tables/CommonTable/CommonTable.tsx";
-import {ColumnDef} from "@tanstack/react-table";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb.tsx";
-import {Link} from "react-router";
-import {useState} from "react";
-import {PencilIcon, TrashBinIcon} from "../../icons";
 import DeleteModal from "../../components/common/DeleteModal.tsx";
-import {BusinessDomain} from "../../types/types.ts";
-import {useDeleteBusinessDomain, useGetBusinessDomains} from "../../api/businessDomains/useBusinessDomain.ts";
+import StatusToast from "../../components/paymentSettings/StatusToast.tsx";
+import {CourseLanguage} from "../../types/types.ts";
+import {useDeleteCourseLanguage, useGetCourseLanguages} from "../../api/courseLanguages/useCourseLanguage.ts";
 
-function formatDate(value?: string) {
-    if (!value) return "—";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value;
-
-    return date.toLocaleString("uz-UZ", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
-}
-
-function DomainActions({
-                           id,
-                           onDelete,
-                           isPending,
-                       }: {
+function CourseLanguageActions({
+    id,
+    onDelete,
+    isPending,
+}: {
     id: string;
     onDelete: (id: string) => Promise<void>;
     isPending: boolean;
@@ -40,7 +26,7 @@ function DomainActions({
         <>
             <div className="flex items-center gap-3">
                 <Link
-                    to={`/business-domains/update/${id}`}
+                    to={`/course-languages/update/${id}`}
                     className="flex items-center text-green-600 hover:text-green-800"
                 >
                     <PencilIcon className="text-2xl"/>
@@ -62,27 +48,30 @@ function DomainActions({
     );
 }
 
-export default function BusinessDomainsPage() {
-    const {data = [], isPending} = useGetBusinessDomains();
-    const {mutateAsync, isPending: isDeletePending} = useDeleteBusinessDomain();
+export default function CourseLanguagesPage() {
+    const {data = [], isPending} = useGetCourseLanguages();
+    const {mutateAsync: deleteCourseLanguage, isPending: isDeletePending} = useDeleteCourseLanguage();
+    const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
     const handleDelete = async (id: string) => {
-        await mutateAsync(id);
+        try {
+            await deleteCourseLanguage(id);
+            setToast({message: "Kurs tili o'chirildi", type: "success"});
+        } catch (error) {
+            setToast({message: error instanceof Error ? error.message : "Kurs tili o'chmadi", type: "error"});
+        }
     };
 
-    const columns: ColumnDef<BusinessDomain>[] = [
-        {accessorKey: "businessName", header: "Biznes"},
-        {accessorKey: "landingHost", header: "Landing domain"},
-        {accessorKey: "studentHost", header: "Student domain"},
+    const columns: ColumnDef<CourseLanguage>[] = [
+        {accessorKey: "name", header: "Nomi"},
+        {accessorKey: "code", header: "Kodi"},
         {
             accessorKey: "active",
             header: "Holat",
             cell: ({row}) => (
                 <span
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
-                        row.original.active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-600"
+                        row.original.active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
                     }`}
                 >
                     {row.original.active ? "Faol" : "Nofaol"}
@@ -90,15 +79,10 @@ export default function BusinessDomainsPage() {
             ),
         },
         {
-            accessorKey: "updatedAt",
-            header: "Yangilangan",
-            cell: ({row}) => formatDate(row.original.updatedAt || row.original.createdAt),
-        },
-        {
             id: "actions",
             header: "",
             cell: ({row}) => (
-                <DomainActions
+                <CourseLanguageActions
                     id={row.original.id}
                     onDelete={handleDelete}
                     isPending={isDeletePending}
@@ -109,10 +93,11 @@ export default function BusinessDomainsPage() {
 
     return (
         <>
-            <PageMeta title="Biznes domenlari" description="Biznes va domen bog'lanishlari"/>
-            <PageBreadcrumb pageTitle="Biznes domenlari" path="/business-domains/add"/>
+            {toast && <StatusToast message={toast.message} type={toast.type} onClose={() => setToast(null)}/>}
+            <PageMeta title="Kurs tillari" description="Kurs tillari ro'yxati"/>
+            <PageBreadcrumb pageTitle="Kurs tillari" path="/course-languages/add"/>
             <div className="space-y-6">
-                <ComponentCard title="Biznes domenlari">
+                <ComponentCard title="Kurs tillari">
                     <CommonTable data={data} columns={columns} isPending={isPending}/>
                 </ComponentCard>
             </div>

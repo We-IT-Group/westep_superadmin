@@ -28,8 +28,8 @@ type NavItem = {
 const navItems: NavItem[] = [
     {
         icon: <GridIcon/>,
-        name: "Dashboard",
-        subItems: [{name: "Ecommerce", path: "/", pro: false}],
+        name: "Boshqaruv paneli",
+        subItems: [{name: "Asosiy", path: "/", pro: false}],
     },
     {
         icon: <UserCircleIcon/>,
@@ -43,13 +43,28 @@ const navItems: NavItem[] = [
     },
     {
         icon: <DocsIcon/>,
-        name: "Business Domains",
+        name: "Biznes domenlari",
         path: "/business-domains",
     },
     {
         icon: <DollarLineIcon/>,
-        name: "Platform Payment Settings",
+        name: "Platforma to'lov sozlamalari",
         path: "/platform-payment-settings",
+    },
+    {
+        icon: <DocsIcon/>,
+        name: "Kurs tillari",
+        path: "/course-languages",
+    },
+    {
+        icon: <DocsIcon/>,
+        name: "Taxonomy",
+        path: "/taxonomy",
+    },
+    {
+        icon: <DocsIcon/>,
+        name: "Kurs moderatsiyasi",
+        path: "/course-moderation",
     },
     // {
     //     icon: <CalenderIcon/>,

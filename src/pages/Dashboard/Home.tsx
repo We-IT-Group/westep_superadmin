@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <>
       <PageMeta
-        title="Westep Superadmin Dashboard"
+        title="Westep Superadmin Boshqaruv paneli"
         description="Westep superadmin boshqaruv paneli"
       />
       <div className="grid grid-cols-12 gap-4 md:gap-6">
@@ -22,10 +22,10 @@ export default function Home() {
               <div>
                 <p className="text-sm font-medium text-brand-500">Westep</p>
                 <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  Superadmin Dashboard
+                  Superadmin boshqaruv paneli
                 </h1>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Tizim, rollar va business domain mappinglarini shu yerdan boshqarasiz.
+                  Tizim, rollar va biznes domen bog'lanishlarini shu yerdan boshqarasiz.
                 </p>
               </div>
               <img
