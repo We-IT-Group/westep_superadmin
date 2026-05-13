@@ -20,6 +20,7 @@ const sanitizeText = (value: string) => {
 const sanitizePayload = (values: PaymentProviderSettingsRequest) => {
     const payload: Record<string, string | number | boolean | undefined> = {
         provider: values.provider,
+        usage: values.usage || undefined,
         displayName: sanitizeText(values.displayName),
         mode: values.mode,
         active: values.active,

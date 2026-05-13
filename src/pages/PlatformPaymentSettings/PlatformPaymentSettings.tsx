@@ -196,6 +196,21 @@ export default function PlatformPaymentSettingsPage() {
                 )}
 
                 <ComponentCard
+                    title="Platform top-up kassasi"
+                    desc="Business wallet top-up uchun ishlatiladigan platform default Payme kassani shu yerdan boshqarasiz."
+                    className="border-slate-200 shadow-sm dark:border-slate-800 dark:bg-slate-950"
+                >
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            `BUSINESS_WALLET_TOP_UP` usage bo'lgan platform-level Payme setting faqat business wallet hisobini to'ldirish uchun ishlatiladi.
+                        </p>
+                        <Button size="sm" onClick={() => navigate("/platform-payment-settings/top-up")}>
+                            Top-up kassani sozlash
+                        </Button>
+                    </div>
+                </ComponentCard>
+
+                <ComponentCard
                     title="Bizneslar ro'yxati"
                     desc="Businessni tanlang va shu biznes uchun alohida kassa ID, test/prod key hamda mode ni sozlang."
                     className="border-slate-200 shadow-sm dark:border-slate-800 dark:bg-slate-950"

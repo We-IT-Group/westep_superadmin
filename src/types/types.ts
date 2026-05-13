@@ -25,12 +25,14 @@ export interface Business {
 export type PaymentProvider = "PAYME" | "CLICK" | "UZUM" | "STRIPE";
 export type PaymentMode = "TEST" | "PROD";
 export type PaymentSettingsSourceType = "BUSINESS" | "PLATFORM_DEFAULT";
+export type PaymentSettingsUsage = "DEFAULT" | "BUSINESS_WALLET_TOP_UP";
 
 export interface PaymentProviderSettingsResponse {
     id: string;
     businessId?: string | null;
     businessName?: string | null;
     provider: PaymentProvider;
+    usage?: PaymentSettingsUsage | null;
     displayName?: string | null;
     active: boolean;
     primaryConfig: boolean;
@@ -53,6 +55,7 @@ export interface PaymentProviderSettingsResponse {
 
 export interface PaymentProviderSettingsRequest {
     provider: PaymentProvider;
+    usage?: PaymentSettingsUsage | null;
     displayName: string;
     active: boolean;
     primaryConfig: boolean;

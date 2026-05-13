@@ -10,6 +10,7 @@ import AddBusinessDomain from "../pages/BusinessDomains/AddBusinessDomain.tsx";
 import BusinessesPage from "../pages/Businesses/Businesses.tsx";
 import PlatformPaymentSettingsPage from "../pages/PlatformPaymentSettings/PlatformPaymentSettings.tsx";
 import BusinessPaymentSettingsPage from "../pages/PlatformPaymentSettings/BusinessPaymentSettingsPage.tsx";
+import TopUpPaymentSettingsPage from "../pages/PlatformPaymentSettings/TopUpPaymentSettingsPage.tsx";
 import CourseModerationPage from "../pages/CourseModeration/CourseModeration.tsx";
 import CourseLanguagesPage from "../pages/CourseLanguages/CourseLanguages.tsx";
 import AddCourseLanguage from "../pages/CourseLanguages/AddCourseLanguage.tsx";
@@ -23,6 +24,7 @@ export const authProtectedRoutes = [
     {path: "/roles", element: <Roles/>}, // oddiy route
     {path: "/businesses", element: <BusinessesPage/>},
     {path: "/platform-payment-settings", element: <PlatformPaymentSettingsPage/>},
+    {path: "/platform-payment-settings/top-up", element: <TopUpPaymentSettingsPage/>},
     {path: "/platform-payment-settings/:businessId", element: <BusinessPaymentSettingsPage/>},
     {path: "/course-languages/update/:id", element: <AddCourseLanguage/>},
     {path: "/course-languages/add", element: <AddCourseLanguage/>},
