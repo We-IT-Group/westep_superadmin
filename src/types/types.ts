@@ -26,7 +26,7 @@ export type PaymentProvider = "PAYME" | "CLICK" | "UZUM" | "STRIPE";
 export type PaymentMode = "TEST" | "PROD";
 export type PaymentSettingsSourceType = "BUSINESS" | "PLATFORM_DEFAULT";
 
-export interface PaymentSettings {
+export interface PaymentProviderSettingsResponse {
     id: string;
     businessId?: string | null;
     businessName?: string | null;
@@ -38,6 +38,12 @@ export interface PaymentSettings {
     merchantId?: string | null;
     login?: string | null;
     secretConfigured: boolean;
+    testMerchantId?: string | null;
+    testLogin?: string | null;
+    testSecretConfigured: boolean;
+    prodMerchantId?: string | null;
+    prodLogin?: string | null;
+    prodSecretConfigured: boolean;
     callbackUrl?: string | null;
     priority?: number | null;
     sourceType?: PaymentSettingsSourceType | null;
@@ -45,18 +51,27 @@ export interface PaymentSettings {
     updatedAt?: string;
 }
 
-export interface PaymentSettingsFormValues {
+export interface PaymentProviderSettingsRequest {
     provider: PaymentProvider;
     displayName: string;
-    mode: PaymentMode;
-    merchantId: string;
-    login: string;
-    secretKey: string;
-    callbackUrl: string;
     active: boolean;
     primaryConfig: boolean;
+    mode: PaymentMode;
+    merchantId?: string | null;
+    login?: string | null;
+    secretKey?: string | null;
+    testMerchantId: string;
+    testLogin: string;
+    testSecretKey: string;
+    prodMerchantId: string;
+    prodLogin: string;
+    prodSecretKey: string;
+    callbackUrl: string;
     priority: number;
 }
+
+export type PaymentSettings = PaymentProviderSettingsResponse;
+export type PaymentSettingsFormValues = PaymentProviderSettingsRequest;
 
 export interface CourseModerationListResponse {
     page: number;

@@ -1,40 +1,54 @@
 import {AxiosError} from "axios";
 import apiClient from "../apiClient";
-import {PaymentSettings, PaymentSettingsFormValues} from "../../types/types.ts";
+import {PaymentProviderSettingsRequest, PaymentProviderSettingsResponse} from "../../types/types.ts";
 
 const getErrorMessage = (error: unknown) => {
-    const err = error as AxiosError<{ message?: string }>;
-    return err.response?.data?.message || "Payment settings saqlashda xatolik yuz berdi";
+    const err = error as AxiosError<{ message?: string; error?: string }>;
+
+    if (err.response?.status === 403) {
+        return "Sizda payment settingsni boshqarish uchun ruxsat yo'q";
+    }
+
+    return err.response?.data?.message || err.response?.data?.error || "Payment settings saqlashda xatolik yuz berdi";
 };
 
-const sanitizePayload = (values: PaymentSettingsFormValues, includeSecretKey: boolean) => {
+const sanitizeText = (value: string) => {
+    const trimmedValue = value.trim();
+    return trimmedValue.length > 0 ? trimmedValue : undefined;
+};
+
+const sanitizePayload = (values: PaymentProviderSettingsRequest) => {
     const payload: Record<string, string | number | boolean | undefined> = {
         provider: values.provider,
-        displayName: values.displayName.trim() || undefined,
+        displayName: sanitizeText(values.displayName),
         mode: values.mode,
-        merchantId: values.merchantId.trim() || undefined,
-        login: values.login.trim() || undefined,
-        callbackUrl: values.callbackUrl.trim() || undefined,
         active: values.active,
         primaryConfig: values.primaryConfig,
+        testMerchantId: sanitizeText(values.testMerchantId),
+        testLogin: sanitizeText(values.testLogin),
+        testSecretKey: sanitizeText(values.testSecretKey),
+        prodMerchantId: sanitizeText(values.prodMerchantId),
+        prodLogin: sanitizeText(values.prodLogin),
+        prodSecretKey: sanitizeText(values.prodSecretKey),
+        callbackUrl: sanitizeText(values.callbackUrl),
         priority: Number.isFinite(Number(values.priority)) ? Number(values.priority) : 0,
     };
-
-    if (includeSecretKey) {
-        payload.secretKey = values.secretKey.trim() || undefined;
-    }
 
     return payload;
 };
 
-export const getPlatformPaymentSettings = async (): Promise<PaymentSettings[]> => {
-    const {data} = await apiClient.get("/admin/payment-settings/platform");
-    return data;
+export const getPlatformPaymentSettings = async (): Promise<PaymentProviderSettingsResponse[]> => {
+    try {
+        const {data} = await apiClient.get("/admin/payment-settings/platform");
+        return data;
+    } catch (error) {
+        throw new Error(getErrorMessage(error));
+    }
 };
 
-export const createPlatformPaymentSetting = async (values: PaymentSettingsFormValues): Promise<PaymentSettings> => {
+export const createPlatformPaymentSetting = async (values: PaymentProviderSettingsRequest): Promise<PaymentProviderSettingsResponse> => {
     try {
-        const {data} = await apiClient.post("/admin/payment-settings/platform", sanitizePayload(values, true));
+        const {data} = await apiClient.post("/admin/payment-settings/platform", sanitizePayload(values));
         return data;
     } catch (error) {
         throw new Error(getErrorMessage(error));
@@ -46,24 +60,32 @@ export const updatePlatformPaymentSetting = async ({
                                                         values,
                                                     }: {
     id: string;
-    values: PaymentSettingsFormValues;
-}): Promise<PaymentSettings> => {
+    values: PaymentProviderSettingsRequest;
+}): Promise<PaymentProviderSettingsResponse> => {
     try {
-        const {data} = await apiClient.put(`/admin/payment-settings/platform/${id}`, sanitizePayload(values, true));
+        const {data} = await apiClient.put(`/admin/payment-settings/platform/${id}`, sanitizePayload(values));
         return data;
     } catch (error) {
         throw new Error(getErrorMessage(error));
     }
 };
 
-export const getBusinessPaymentSettings = async (businessId: string): Promise<PaymentSettings[]> => {
-    const {data} = await apiClient.get(`/admin/businesses/${businessId}/payment-settings`);
-    return data;
+export const getBusinessPaymentSettings = async (businessId: string): Promise<PaymentProviderSettingsResponse[]> => {
+    try {
+        const {data} = await apiClient.get(`/admin/businesses/${businessId}/payment-settings`);
+        return data;
+    } catch (error) {
+        throw new Error(getErrorMessage(error));
+    }
 };
 
-export const getEffectiveBusinessPaymentSettings = async (businessId: string): Promise<PaymentSettings[]> => {
-    const {data} = await apiClient.get(`/admin/businesses/${businessId}/payment-settings/effective`);
-    return data;
+export const getEffectiveBusinessPaymentSettings = async (businessId: string): Promise<PaymentProviderSettingsResponse[]> => {
+    try {
+        const {data} = await apiClient.get(`/admin/businesses/${businessId}/payment-settings/effective`);
+        return data;
+    } catch (error) {
+        throw new Error(getErrorMessage(error));
+    }
 };
 
 export const createBusinessPaymentSetting = async ({
@@ -71,10 +93,10 @@ export const createBusinessPaymentSetting = async ({
                                                         values,
                                                     }: {
     businessId: string;
-    values: PaymentSettingsFormValues;
-}): Promise<PaymentSettings> => {
+    values: PaymentProviderSettingsRequest;
+}): Promise<PaymentProviderSettingsResponse> => {
     try {
-        const {data} = await apiClient.post(`/admin/businesses/${businessId}/payment-settings`, sanitizePayload(values, true));
+        const {data} = await apiClient.post(`/admin/businesses/${businessId}/payment-settings`, sanitizePayload(values));
         return data;
     } catch (error) {
         throw new Error(getErrorMessage(error));
@@ -88,12 +110,12 @@ export const updateBusinessPaymentSetting = async ({
                                                     }: {
     businessId: string;
     id: string;
-    values: PaymentSettingsFormValues;
-}): Promise<PaymentSettings> => {
+    values: PaymentProviderSettingsRequest;
+}): Promise<PaymentProviderSettingsResponse> => {
     try {
         const {data} = await apiClient.put(
             `/admin/businesses/${businessId}/payment-settings/${id}`,
-            sanitizePayload(values, true),
+            sanitizePayload(values),
         );
         return data;
     } catch (error) {

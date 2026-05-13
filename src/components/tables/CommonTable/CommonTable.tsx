@@ -42,17 +42,13 @@ export default function CommonTable<T>({data, columns, isPending}: TableProps<T>
     })
 
 
-    console.log(pagination)
-
     const {getPageOptions, getState, setPageIndex, getCanPreviousPage, getCanNextPage, nextPage, previousPage} = table
 
     const currentPage = getState().pagination.pageIndex
 
-    console.log(currentPage, 'currentPage', currentPage)
-
     return (
         <div
-            className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+            className="w-full min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
             <div className="max-w-full overflow-x-auto">
                 <Table>
                     {/* Table Header */}

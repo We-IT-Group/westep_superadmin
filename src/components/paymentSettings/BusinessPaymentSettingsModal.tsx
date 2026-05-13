@@ -11,53 +11,44 @@ import {
     useUpdateBusinessPaymentSetting
 } from "../../api/paymentSettings/usePaymentSettings.ts";
 import {Business, PaymentSettings, PaymentSettingsFormValues} from "../../types/types.ts";
-
-function SettingsBadge({
-                           label,
-                           tone = "gray",
-                       }: {
-    label: string;
-    tone?: "blue" | "green" | "orange" | "gray";
-}) {
-    const toneClass = {
-        blue: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300",
-        green: "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-300",
-        orange: "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-300",
-        gray: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
-    }[tone];
-
-    return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${toneClass}`}>{label}</span>;
-}
-
-function formatValue(value?: string | number | null, fallback = "—") {
-    if (value === null || value === undefined || value === "") return fallback;
-    return String(value);
-}
+import {
+    formatValue,
+    getActiveCredentialWarning,
+    getModeDescription,
+    getModeTone,
+    getSecretBadgeLabel,
+    SettingsBadge
+} from "./paymentSettingsShared.tsx";
 
 function SettingCard({
-                         setting,
-                         onEdit,
-                     }: {
+    setting,
+    onEdit,
+}: {
     setting: PaymentSettings;
     onEdit?: (setting: PaymentSettings) => void;
 }) {
+    const warningMessage = getActiveCredentialWarning(setting);
+
     return (
         <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
             <div className="flex items-start justify-between gap-4">
-                <div>
+                <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
                         <h4 className="text-base font-semibold text-gray-900 dark:text-white">
                             {setting.displayName || setting.provider}
                         </h4>
                         <SettingsBadge label={setting.provider} tone="blue"/>
-                        <SettingsBadge
-                            label={setting.sourceType === "PLATFORM_DEFAULT" ? "Platforma standarti" : "Biznes"}
-                            tone={setting.sourceType === "PLATFORM_DEFAULT" ? "orange" : "green"}
-                        />
+                        <SettingsBadge label={setting.active ? "Faol" : "Nofaol"} tone={setting.active ? "green" : "gray"}/>
+                        <SettingsBadge label={setting.primaryConfig ? "Asosiy" : "Qo'shimcha"} tone={setting.primaryConfig ? "blue" : "gray"}/>
+                        <SettingsBadge label={setting.mode} tone={getModeTone(setting.mode)}/>
+                        {setting.sourceType && (
+                            <SettingsBadge
+                                label={setting.sourceType === "PLATFORM_DEFAULT" ? "Platform default" : "Business"}
+                                tone={setting.sourceType === "PLATFORM_DEFAULT" ? "orange" : "green"}
+                            />
+                        )}
                     </div>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Rejim: {setting.mode} | Login: {formatValue(setting.login)}
-                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{getModeDescription(setting.mode)}</p>
                 </div>
                 {onEdit && (
                     <Button size="sm" variant="outline" onClick={() => onEdit(setting)}>
@@ -66,23 +57,54 @@ function SettingCard({
                 )}
             </div>
 
-            <div className="mt-4 grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+            {warningMessage && (
+                <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+                    {warningMessage}
+                </div>
+            )}
+
+            <div className="mt-4 grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
                 <div>
-                    <p className="text-gray-500 dark:text-gray-400">Merchant ID</p>
+                    <p className="text-gray-500 dark:text-gray-400">Effective merchant ID</p>
                     <p className="font-medium text-gray-900 dark:text-white">{formatValue(setting.merchantId)}</p>
                 </div>
                 <div>
+                    <p className="text-gray-500 dark:text-gray-400">Effective login</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{formatValue(setting.login)}</p>
+                </div>
+                <div className="md:col-span-2">
                     <p className="text-gray-500 dark:text-gray-400">Callback URL</p>
-                    <p className="font-medium text-gray-900 dark:text-white break-all">{formatValue(setting.callbackUrl)}</p>
+                    <p className="break-all font-medium text-gray-900 dark:text-white">{formatValue(setting.callbackUrl)}</p>
                 </div>
                 <div>
-                    <p className="text-gray-500 dark:text-gray-400">Ustuvorlik</p>
+                    <p className="text-gray-500 dark:text-gray-400">Test merchant ID</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{formatValue(setting.testMerchantId)}</p>
+                </div>
+                <div>
+                    <p className="text-gray-500 dark:text-gray-400">Test login</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{formatValue(setting.testLogin)}</p>
+                </div>
+                <div>
+                    <p className="text-gray-500 dark:text-gray-400">Prod merchant ID</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{formatValue(setting.prodMerchantId)}</p>
+                </div>
+                <div>
+                    <p className="text-gray-500 dark:text-gray-400">Prod login</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{formatValue(setting.prodLogin)}</p>
+                </div>
+                <div>
+                    <p className="text-gray-500 dark:text-gray-400">Priority</p>
                     <p className="font-medium text-gray-900 dark:text-white">{formatValue(setting.priority, "0")}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <SettingsBadge label={setting.active ? "Faol" : "Nofaol"} tone={setting.active ? "green" : "gray"}/>
-                    <SettingsBadge label={setting.primaryConfig ? "Asosiy" : "Qo'shimcha"} tone={setting.primaryConfig ? "blue" : "gray"}/>
-                    <SettingsBadge label={setting.secretConfigured ? "Secret sozlangan" : "Secret yo'q"} tone={setting.secretConfigured ? "green" : "orange"}/>
+                    <SettingsBadge
+                        label={`Test: ${getSecretBadgeLabel(setting.testSecretConfigured)}`}
+                        tone={setting.testSecretConfigured ? "green" : "orange"}
+                    />
+                    <SettingsBadge
+                        label={`Prod: ${getSecretBadgeLabel(setting.prodSecretConfigured)}`}
+                        tone={setting.prodSecretConfigured ? "green" : "orange"}
+                    />
                 </div>
             </div>
         </div>
@@ -101,8 +123,16 @@ export default function BusinessPaymentSettingsModal({business, isOpen, onClose}
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-    const {data: businessSettings = [], isPending: isBusinessPending} = useGetBusinessPaymentSettings(businessId, isOpen);
-    const {data: effectiveSettings = [], isPending: isEffectivePending} = useGetEffectiveBusinessPaymentSettings(businessId, isOpen);
+    const {
+        data: businessSettings = [],
+        isPending: isBusinessPending,
+        error: businessError,
+    } = useGetBusinessPaymentSettings(businessId, isOpen);
+    const {
+        data: effectiveSettings = [],
+        isPending: isEffectivePending,
+        error: effectiveError,
+    } = useGetEffectiveBusinessPaymentSettings(businessId, isOpen);
     const {mutateAsync: createBusinessSetting, isPending: isCreatePending} = useCreateBusinessPaymentSetting();
     const {mutateAsync: updateBusinessSetting, isPending: isUpdatePending} = useUpdateBusinessPaymentSetting();
 
@@ -115,6 +145,12 @@ export default function BusinessPaymentSettingsModal({business, isOpen, onClose}
         () => effectiveSettings.some((item) => item.sourceType === "BUSINESS"),
         [effectiveSettings],
     );
+
+    const permissionMessage = useMemo(() => {
+        const errors = [businessError, effectiveError];
+        const matchedError = errors.find((error) => error instanceof Error && error.message.includes("ruxsat"));
+        return matchedError instanceof Error ? matchedError.message : null;
+    }, [businessError, effectiveError]);
 
     const handleCreate = () => {
         setEditingSetting(null);
@@ -149,7 +185,7 @@ export default function BusinessPaymentSettingsModal({business, isOpen, onClose}
     return (
         <>
             {toast && <StatusToast message={toast.message} type={toast.type} onClose={() => setToast(null)}/>}
-            <Modal isOpen={isOpen} onClose={onClose} className="max-w-[1100px] m-4 p-6 sm:p-8">
+            <Modal isOpen={isOpen} onClose={onClose} className="max-w-[1200px] m-4 p-6 sm:p-8">
                 <div className="space-y-6">
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -157,7 +193,7 @@ export default function BusinessPaymentSettingsModal({business, isOpen, onClose}
                                 To'lov sozlamalari: {business?.name}
                             </h3>
                             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                Biznes darajasidagi override va amalda ishlayotgan to'lov provider konfiguratsiyasi.
+                                Biznes override va backend hisoblagan effective Payme credentiallari shu yerda ko'rinadi.
                             </p>
                         </div>
                         <Button size="sm" onClick={handleCreate}>
@@ -165,8 +201,14 @@ export default function BusinessPaymentSettingsModal({business, isOpen, onClose}
                         </Button>
                     </div>
 
+                    {permissionMessage && (
+                        <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">
+                            {permissionMessage}
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                        <ComponentCard title="Biznes sozlamalari" desc="Faqat shu biznesga yozilgan konfiguratsiyalar">
+                        <ComponentCard title="Biznes sozlamalari" desc="Faqat shu biznesga yozilgan credentiallar">
                             {isBusinessPending ? (
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Yuklanmoqda...</p>
                             ) : businessSettings.length === 0 ? (
@@ -182,13 +224,13 @@ export default function BusinessPaymentSettingsModal({business, isOpen, onClose}
                             )}
                         </ComponentCard>
 
-                        <ComponentCard title="Amaldagi sozlamalar" desc="Backend aniqlagan real ishlayotgan konfiguratsiya">
+                        <ComponentCard title="Effective settings" desc="Qaysi mode va qaysi merchant amalda ishlayotganini backend aniqlab beradi">
                             <div className="flex flex-wrap gap-2">
                                 {isUsingPlatformDefault && (
-                                    <SettingsBadge label="Platforma standarti ishlayapti" tone="orange"/>
+                                    <SettingsBadge label="Platform default ishlayapti" tone="orange"/>
                                 )}
                                 {hasBusinessOverride && (
-                                    <SettingsBadge label="Biznes override faol" tone="green"/>
+                                    <SettingsBadge label="Business override faol" tone="green"/>
                                 )}
                             </div>
 
@@ -196,7 +238,7 @@ export default function BusinessPaymentSettingsModal({business, isOpen, onClose}
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Yuklanmoqda...</p>
                             ) : effectiveSettings.length === 0 ? (
                                 <div className="rounded-xl border border-dashed border-gray-300 px-4 py-6 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                                    To'lov provider sozlanmagan
+                                    To'lov provider sozlanmagan.
                                 </div>
                             ) : (
                                 <div className="space-y-4">
