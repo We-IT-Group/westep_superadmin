@@ -76,6 +76,79 @@ export interface PaymentProviderSettingsRequest {
 export type PaymentSettings = PaymentProviderSettingsResponse;
 export type PaymentSettingsFormValues = PaymentProviderSettingsRequest;
 
+export interface SubscriptionPlan {
+    id: string;
+    name: string;
+    slug: string;
+    tier: number;
+    monthlyPrice: number;
+    description?: string | null;
+    features: string[];
+    planActive: boolean;
+}
+
+export interface SubscriptionPlanFormValues {
+    name: string;
+    slug: string;
+    tier: number;
+    monthlyPrice: number;
+    description: string;
+    featuresText: string;
+}
+
+export interface AppLanguage {
+    id: string;
+    name: string;
+    code: string;
+    defaultLanguage: boolean;
+    active: boolean;
+}
+
+export interface AppLanguageFormValues {
+    name: string;
+    code: string;
+    defaultLanguage: boolean;
+    active: boolean;
+}
+
+export interface TranslationItem {
+    id: string;
+    languageId: string;
+    languageCode: string;
+    languageName: string;
+    translationKeyId: string;
+    namespace: string;
+    key: string;
+    value: string;
+    description?: string | null;
+    active: boolean;
+}
+
+export interface TranslationListResponse {
+    page: number;
+    size: number;
+    totalItems: number;
+    totalPages: number;
+    items: TranslationItem[];
+}
+
+export interface TranslationFilters {
+    languageId?: string;
+    namespace?: string;
+    q?: string;
+    page: number;
+    size: number;
+}
+
+export interface TranslationFormValues {
+    languageId: string;
+    namespace: string;
+    key: string;
+    value: string;
+    description: string;
+    active: boolean;
+}
+
 export interface CourseModerationListResponse {
     page: number;
     size: number;

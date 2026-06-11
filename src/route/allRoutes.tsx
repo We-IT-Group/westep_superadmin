@@ -15,6 +15,9 @@ import CourseModerationPage from "../pages/CourseModeration/CourseModeration.tsx
 import CourseLanguagesPage from "../pages/CourseLanguages/CourseLanguages.tsx";
 import AddCourseLanguage from "../pages/CourseLanguages/AddCourseLanguage.tsx";
 import TaxonomyPage from "../pages/Taxonomy/TaxonomyPage.tsx";
+import SubscriptionPlansPage from "../pages/SubscriptionPlans/SubscriptionPlans.tsx";
+import AddSubscriptionPlan from "../pages/SubscriptionPlans/AddSubscriptionPlan.tsx";
+import AppTranslationsPage from "../pages/AppTranslations/AppTranslationsPage.tsx";
 
 
 export const authProtectedRoutes = [
@@ -29,7 +32,11 @@ export const authProtectedRoutes = [
     {path: "/course-languages/update/:id", element: <AddCourseLanguage/>},
     {path: "/course-languages/add", element: <AddCourseLanguage/>},
     {path: "/course-languages", element: <CourseLanguagesPage/>},
+    {path: "/subscription-plans/update/:id", element: <AddSubscriptionPlan/>},
+    {path: "/subscription-plans/add", element: <AddSubscriptionPlan/>},
+    {path: "/subscription-plans", element: <SubscriptionPlansPage/>},
     {path: "/taxonomy", element: <TaxonomyPage/>},
+    {path: "/app-translations", element: <AppTranslationsPage/>},
     {path: "/course-moderation", element: <CourseModerationPage/>},
     {path: "/business-domains/update/:id", element: <AddBusinessDomain/>},
     {path: "/business-domains/add", element: <AddBusinessDomain/>},

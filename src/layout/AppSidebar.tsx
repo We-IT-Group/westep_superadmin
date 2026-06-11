@@ -57,9 +57,19 @@ const navItems: NavItem[] = [
         path: "/course-languages",
     },
     {
+        icon: <DollarLineIcon/>,
+        name: "Obuna paketlari",
+        path: "/subscription-plans",
+    },
+    {
         icon: <DocsIcon/>,
         name: "Taxonomy",
         path: "/taxonomy",
+    },
+    {
+        icon: <DocsIcon/>,
+        name: "Ilova tarjimalari",
+        path: "/app-translations",
     },
     {
         icon: <DocsIcon/>,
