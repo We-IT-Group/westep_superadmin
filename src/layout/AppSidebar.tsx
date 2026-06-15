@@ -73,6 +73,11 @@ const navItems: NavItem[] = [
     },
     {
         icon: <DocsIcon/>,
+        name: "Scheduled notificationlar",
+        path: "/admin-notifications",
+    },
+    {
+        icon: <DocsIcon/>,
         name: "Kurs moderatsiyasi",
         path: "/course-moderation",
     },

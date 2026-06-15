@@ -149,6 +149,62 @@ export interface TranslationFormValues {
     active: boolean;
 }
 
+export interface NotificationRecipient {
+    id: string;
+    phoneNumber: string;
+    firstname: string;
+    lastname: string;
+}
+
+export interface NotificationRecipientListResponse {
+    page: number;
+    size: number;
+    totalElements: number;
+    items: NotificationRecipient[];
+}
+
+export type ScheduledNotificationStatus =
+    | "DRAFT"
+    | "SCHEDULED"
+    | "SENDING"
+    | "SENT"
+    | "CANCELLED"
+    | "FAILED";
+
+export interface ScheduledNotification {
+    id: string;
+    type: string;
+    title: string;
+    body: string;
+    scheduledAt: string;
+    scheduledAtUtc?: string | null;
+    timezone: string;
+    status: ScheduledNotificationStatus;
+    totalRecipients: number;
+    pendingRecipients: number;
+    sentRecipients: number;
+    failedRecipients: number;
+    cancelledRecipients: number;
+    sentAt?: string | null;
+    cancelledAt?: string | null;
+    failureMessage?: string | null;
+    createdAt: string;
+}
+
+export interface ScheduledNotificationListResponse {
+    page: number;
+    size: number;
+    totalElements: number;
+    items: ScheduledNotification[];
+}
+
+export interface ScheduledNotificationFormValues {
+    title: string;
+    body: string;
+    scheduledAt: string;
+    timezone: string;
+}
+
 export interface CourseModerationListResponse {
     page: number;
     size: number;

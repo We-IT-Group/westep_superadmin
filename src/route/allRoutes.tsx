@@ -18,6 +18,7 @@ import TaxonomyPage from "../pages/Taxonomy/TaxonomyPage.tsx";
 import SubscriptionPlansPage from "../pages/SubscriptionPlans/SubscriptionPlans.tsx";
 import AddSubscriptionPlan from "../pages/SubscriptionPlans/AddSubscriptionPlan.tsx";
 import AppTranslationsPage from "../pages/AppTranslations/AppTranslationsPage.tsx";
+import AdminNotificationsPage from "../pages/AdminNotifications/AdminNotificationsPage.tsx";
 
 
 export const authProtectedRoutes = [
@@ -37,6 +38,7 @@ export const authProtectedRoutes = [
     {path: "/subscription-plans", element: <SubscriptionPlansPage/>},
     {path: "/taxonomy", element: <TaxonomyPage/>},
     {path: "/app-translations", element: <AppTranslationsPage/>},
+    {path: "/admin-notifications", element: <AdminNotificationsPage/>},
     {path: "/course-moderation", element: <CourseModerationPage/>},
     {path: "/business-domains/update/:id", element: <AddBusinessDomain/>},
     {path: "/business-domains/add", element: <AddBusinessDomain/>},
