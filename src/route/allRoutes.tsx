@@ -12,6 +12,8 @@ import PlatformPaymentSettingsPage from "../pages/PlatformPaymentSettings/Platfo
 import BusinessPaymentSettingsPage from "../pages/PlatformPaymentSettings/BusinessPaymentSettingsPage.tsx";
 import TopUpPaymentSettingsPage from "../pages/PlatformPaymentSettings/TopUpPaymentSettingsPage.tsx";
 import CourseModerationPage from "../pages/CourseModeration/CourseModeration.tsx";
+import InterestQuizQuestionsPage from "../pages/InterestQuiz/InterestQuizQuestions.tsx";
+import StudentProfessionsReviewPage from "../pages/StudentProfessions/StudentProfessionsReview.tsx";
 import TaxonomyPage from "../pages/Taxonomy/TaxonomyPage.tsx";
 import SubscriptionPlansPage from "../pages/SubscriptionPlans/SubscriptionPlans.tsx";
 import AddSubscriptionPlan from "../pages/SubscriptionPlans/AddSubscriptionPlan.tsx";
@@ -35,6 +37,8 @@ export const authProtectedRoutes = [
     {path: "/app-translations", element: <AppTranslationsPage/>},
     {path: "/admin-notifications", element: <AdminNotificationsPage/>},
     {path: "/course-moderation", element: <CourseModerationPage/>},
+    {path: "/interest-quiz", element: <InterestQuizQuestionsPage/>},
+    {path: "/student-professions", element: <StudentProfessionsReviewPage/>},
     {path: "/business-domains/update/:id", element: <AddBusinessDomain/>},
     {path: "/business-domains/add", element: <AddBusinessDomain/>},
     {path: "/business-domains", element: <BusinessDomainsPage/>},

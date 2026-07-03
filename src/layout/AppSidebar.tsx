@@ -76,6 +76,16 @@ const navItems: NavItem[] = [
         name: "Kurs moderatsiyasi",
         path: "/course-moderation",
     },
+    {
+        icon: <DocsIcon/>,
+        name: "Qiziqish testi",
+        path: "/interest-quiz",
+    },
+    {
+        icon: <UserCircleIcon/>,
+        name: "Kasb tanlovlari",
+        path: "/student-professions",
+    },
     // {
     //     icon: <CalenderIcon/>,
     //     name: "Calendar",
