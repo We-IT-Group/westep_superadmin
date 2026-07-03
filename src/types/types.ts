@@ -1,0 +1,297 @@
+export interface Role {
+    id: string;
+    name: string;
+    permissions: string[];
+}
+
+export interface Business {
+    id: string;
+    name: string;
+    address?: string;
+    phone?: string;
+    description?: string;
+    studentsCount?: number;
+    ownerId?: string;
+    ownerFullName?: string;
+    assistants?: Record<string, string>;
+    members?: Array<{
+        id: string;
+        fullName: string;
+        phone: string;
+        role: string;
+    }>;
+}
+
+export type PaymentProvider = "PAYME" | "CLICK" | "UZUM" | "STRIPE";
+export type PaymentMode = "TEST" | "PROD";
+export type PaymentSettingsSourceType = "BUSINESS" | "PLATFORM_DEFAULT";
+export type PaymentSettingsUsage = "DEFAULT" | "BUSINESS_WALLET_TOP_UP";
+
+export interface PaymentProviderSettingsResponse {
+    id: string;
+    businessId?: string | null;
+    businessName?: string | null;
+    provider: PaymentProvider;
+    usage?: PaymentSettingsUsage | null;
+    displayName?: string | null;
+    active: boolean;
+    primaryConfig: boolean;
+    mode: PaymentMode;
+    merchantId?: string | null;
+    login?: string | null;
+    secretConfigured: boolean;
+    testMerchantId?: string | null;
+    testLogin?: string | null;
+    testSecretConfigured: boolean;
+    prodMerchantId?: string | null;
+    prodLogin?: string | null;
+    prodSecretConfigured: boolean;
+    callbackUrl?: string | null;
+    priority?: number | null;
+    sourceType?: PaymentSettingsSourceType | null;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface PaymentProviderSettingsRequest {
+    provider: PaymentProvider;
+    usage?: PaymentSettingsUsage | null;
+    displayName: string;
+    active: boolean;
+    primaryConfig: boolean;
+    mode: PaymentMode;
+    merchantId?: string | null;
+    login?: string | null;
+    secretKey?: string | null;
+    testMerchantId: string;
+    testLogin: string;
+    testSecretKey: string;
+    prodMerchantId: string;
+    prodLogin: string;
+    prodSecretKey: string;
+    callbackUrl: string;
+    priority: number;
+}
+
+export type PaymentSettings = PaymentProviderSettingsResponse;
+export type PaymentSettingsFormValues = PaymentProviderSettingsRequest;
+
+export interface SubscriptionPlan {
+    id: string;
+    name: string;
+    slug: string;
+    tier: number;
+    monthlyPrice: number;
+    description?: string | null;
+    features: string[];
+    planActive: boolean;
+}
+
+export interface SubscriptionPlanFormValues {
+    name: string;
+    slug: string;
+    tier: number;
+    monthlyPrice: number;
+    description: string;
+    featuresText: string;
+}
+
+export interface AppLanguage {
+    id: string;
+    name: string;
+    code: string;
+    defaultLanguage: boolean;
+    active: boolean;
+}
+
+export interface AppLanguageFormValues {
+    name: string;
+    code: string;
+    defaultLanguage: boolean;
+    active: boolean;
+}
+
+export interface TranslationItem {
+    id: string;
+    languageId: string;
+    languageCode: string;
+    languageName: string;
+    translationKeyId: string;
+    namespace: string;
+    key: string;
+    value: string;
+    description?: string | null;
+    active: boolean;
+}
+
+export interface TranslationListResponse {
+    page: number;
+    size: number;
+    totalItems: number;
+    totalPages: number;
+    items: TranslationItem[];
+}
+
+export interface TranslationFilters {
+    languageId?: string;
+    namespace?: string;
+    q?: string;
+    page: number;
+    size: number;
+}
+
+export interface TranslationFormValues {
+    languageId: string;
+    namespace: string;
+    key: string;
+    value: string;
+    description: string;
+    active: boolean;
+}
+
+export interface NotificationRecipient {
+    id: string;
+    phoneNumber: string;
+    firstname: string;
+    lastname: string;
+}
+
+export interface NotificationRecipientListResponse {
+    page: number;
+    size: number;
+    totalElements: number;
+    items: NotificationRecipient[];
+}
+
+export type ScheduledNotificationStatus =
+    | "DRAFT"
+    | "SCHEDULED"
+    | "SENDING"
+    | "SENT"
+    | "CANCELLED"
+    | "FAILED";
+
+export interface ScheduledNotification {
+    id: string;
+    type: string;
+    title: string;
+    body: string;
+    scheduledAt: string;
+    scheduledAtUtc?: string | null;
+    timezone: string;
+    status: ScheduledNotificationStatus;
+    totalRecipients: number;
+    pendingRecipients: number;
+    sentRecipients: number;
+    failedRecipients: number;
+    cancelledRecipients: number;
+    sentAt?: string | null;
+    cancelledAt?: string | null;
+    failureMessage?: string | null;
+    createdAt: string;
+}
+
+export interface ScheduledNotificationListResponse {
+    page: number;
+    size: number;
+    totalElements: number;
+    items: ScheduledNotification[];
+}
+
+export interface ScheduledNotificationFormValues {
+    title: string;
+    body: string;
+    scheduledAt: string;
+    timezone: string;
+}
+
+export interface CourseModerationListResponse {
+    page: number;
+    size: number;
+    totalItems: number;
+    totalPages: number;
+    courses: CourseModerationCourse[];
+}
+
+export interface CourseModerationCourse {
+    id: string;
+    name: string;
+    description?: string;
+    status: string;
+    statusNote?: string | null;
+    isPublished: boolean;
+    active: boolean;
+    businessId?: string | null;
+    studentsCount: number;
+    price?: number | null;
+    lessonsCount: number;
+    createdAt?: string;
+    publishedAt?: string | null;
+}
+
+export interface BusinessDomain {
+    id: string;
+    businessId: string;
+    businessName: string;
+    landingHost: string;
+    studentHost: string;
+    active: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface BusinessDomainFormValues {
+    businessId: string;
+    landingHost: string;
+    studentHost: string;
+    active: boolean;
+}
+
+export interface TaxonomyCategory {
+    id: string;
+    name: string;
+    description?: string | null;
+}
+
+export interface TaxonomySubcategory {
+    id: string;
+    name: string;
+    description?: string | null;
+    categoryId: string;
+    categoryName: string;
+}
+
+export interface TaxonomySkillTag {
+    id: string;
+    name: string;
+    description?: string | null;
+}
+
+export interface TaxonomyCategoryFormValues {
+    name: string;
+    description: string;
+}
+
+export interface TaxonomySubcategoryFormValues {
+    name: string;
+    description: string;
+    categoryId: string;
+}
+
+export interface TaxonomySkillTagFormValues {
+    name: string;
+    description: string;
+}
+
+export interface User {
+    birthDate?: string;
+    businessId?: string;
+    createdAt?: string;
+    firstname: string;
+    gender: string;
+    id: string;
+    lastname: string
+    permissionsList: string[];
+    phoneNumber: string
+    roleName: string
+}

@@ -1,0 +1,60 @@
+.auth-back {
+    background-image: url("../assets/back_auth (1).jpg");
+    background-size: cover;
+    background-position: center 40%;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+}
+
+.auth-glass {
+    width: 95%;
+    height: 100%;
+    padding: 2rem;
+    border-radius: 18px;
+    background: rgba(202, 227, 255, 0.1);
+    border: 1px solid rgba(202, 227, 255, 0.1);
+    box-shadow: 0 8px 30px rgba(202, 227, 255, 0.5);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+    backdrop-filter: blur(8px) saturate(120%);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    filter: blur(6px);
+    opacity: 0.9;
+    z-index: -1;
+    pointer-events: none;
+}
+
+@media (max-width: 425px) {
+    .auth-back {
+        background-position: center;
+        padding: 1rem;
+    }
+
+    .auth-glass {
+        width: 100%;
+        height: auto;
+        padding: 1.2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(202, 227, 255, 0.4);
+        -webkit-backdrop-filter: blur(6px) saturate(110%);
+        backdrop-filter: blur(6px) saturate(110%);
+    }
+
+    .auth-glass::before {
+        filter: blur(4px);
+        opacity: 0.85;
+    }
+}
