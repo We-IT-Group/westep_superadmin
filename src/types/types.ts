@@ -225,6 +225,7 @@ export interface CourseModerationCourse {
     studentsCount: number;
     price?: number | null;
     lessonsCount: number;
+    targetAgeGroups?: string[];
     createdAt?: string;
     publishedAt?: string | null;
 }

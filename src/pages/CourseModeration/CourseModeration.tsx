@@ -63,6 +63,22 @@ export default function CourseModerationPage() {
     const columns: ColumnDef<CourseModerationCourse>[] = [
         {accessorKey: "name", header: "Kurs"},
         {accessorKey: "status", header: "Holat", cell: ({row}) => <Badge label={row.original.status} tone="blue"/>},
+        {
+            accessorKey: "targetAgeGroups",
+            header: "Yosh guruhi",
+            cell: ({row}) => {
+                const groups = row.original.targetAgeGroups || [];
+                if (groups.length === 0) {
+                    return <Badge label="Tanlanmagan!" tone="orange"/>;
+                }
+                const labels: Record<string, string> = {
+                    KIDS_5_8: "5–8",
+                    JUNIOR_9_12: "9–12",
+                    TEEN_13_17: "13–17",
+                };
+                return <Badge label={groups.map((g) => labels[g] || g).join(", ")} tone="green"/>;
+            },
+        },
         {accessorKey: "studentsCount", header: "Talabalar"},
         {accessorKey: "lessonsCount", header: "Darslar"},
         {
