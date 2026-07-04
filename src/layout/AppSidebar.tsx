@@ -106,6 +106,11 @@ const navItems: NavItem[] = [
         name: "Coin sozlamalari",
         path: "/coin-settings",
     },
+    {
+        icon: <DocsIcon/>,
+        name: "Kunlik odatlar (tarbiya)",
+        path: "/habits",
+    },
     // {
     //     icon: <CalenderIcon/>,
     //     name: "Calendar",

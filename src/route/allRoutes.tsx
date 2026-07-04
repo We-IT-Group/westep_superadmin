@@ -18,6 +18,7 @@ import RoadmapTemplatesPage from "../pages/RoadmapTemplates/RoadmapTemplates.tsx
 import GiftsPage from "../pages/Gifts/GiftsPage.tsx";
 import GiftOrdersPage from "../pages/Gifts/GiftOrdersPage.tsx";
 import CoinSettingsPage from "../pages/Gifts/CoinSettingsPage.tsx";
+import HabitsPage from "../pages/Habits/HabitsPage.tsx";
 import TaxonomyPage from "../pages/Taxonomy/TaxonomyPage.tsx";
 import SubscriptionPlansPage from "../pages/SubscriptionPlans/SubscriptionPlans.tsx";
 import AddSubscriptionPlan from "../pages/SubscriptionPlans/AddSubscriptionPlan.tsx";
@@ -47,6 +48,7 @@ export const authProtectedRoutes = [
     {path: "/gifts", element: <GiftsPage/>},
     {path: "/gift-orders", element: <GiftOrdersPage/>},
     {path: "/coin-settings", element: <CoinSettingsPage/>},
+    {path: "/habits", element: <HabitsPage/>},
     {path: "/business-domains/update/:id", element: <AddBusinessDomain/>},
     {path: "/business-domains/add", element: <AddBusinessDomain/>},
     {path: "/business-domains", element: <BusinessDomainsPage/>},
