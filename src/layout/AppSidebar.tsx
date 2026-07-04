@@ -91,6 +91,21 @@ const navItems: NavItem[] = [
         name: "Roadmap shablonlari",
         path: "/roadmap-templates",
     },
+    {
+        icon: <DollarLineIcon/>,
+        name: "Sovg'alar katalogi",
+        path: "/gifts",
+    },
+    {
+        icon: <DollarLineIcon/>,
+        name: "Sovg'a buyurtmalari",
+        path: "/gift-orders",
+    },
+    {
+        icon: <DollarLineIcon/>,
+        name: "Coin sozlamalari",
+        path: "/coin-settings",
+    },
     // {
     //     icon: <CalenderIcon/>,
     //     name: "Calendar",
