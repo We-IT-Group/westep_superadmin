@@ -86,6 +86,11 @@ const navItems: NavItem[] = [
         name: "Kasb tanlovlari",
         path: "/student-professions",
     },
+    {
+        icon: <DocsIcon/>,
+        name: "Roadmap shablonlari",
+        path: "/roadmap-templates",
+    },
     // {
     //     icon: <CalenderIcon/>,
     //     name: "Calendar",
