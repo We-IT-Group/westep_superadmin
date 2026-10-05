@@ -33,7 +33,7 @@ export default function StudentsPage() {
     const [exporting, setExporting] = useState(false);
 
     const {data: stats} = useStudentStats();
-    const {data, isPending} = useStudents({
+    const {data, isPending, isError, error} = useStudents({
         search,
         signupMethod,
         subscriptionStatus,
@@ -168,6 +168,10 @@ export default function StudentsPage() {
             <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
                 {isPending ? (
                     <div className="p-8 text-center text-sm text-gray-500">Yuklanmoqda...</div>
+                ) : isError ? (
+                    <div className="p-8 text-center text-sm text-red-600">
+                        {error instanceof Error ? error.message : "O'quvchilar yuklanmadi"}
+                    </div>
                 ) : items.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 p-12 text-center">
                         <GroupIcon className="h-8 w-8 text-gray-300"/>

@@ -1,3 +1,4 @@
+import {Navigate} from "react-router";
 import SignIn from "../pages/AuthPages/SignIn";
 import NotFound from "../pages/OtherPage/NotFound";
 import Home from "../pages/Dashboard/Home.tsx";
@@ -94,6 +95,7 @@ export const authProtectedRoutes = [
 ];
 export const publicRoutes = [
     {path: "/login", element: <SignIn/>},
+    {path: "/signin", element: <Navigate to="/login" replace/>},
     {path: "/logout", element: <Logout/>},
     {path: "*", element: <NotFound/>}
 ]
