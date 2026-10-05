@@ -14,6 +14,7 @@ import {
 
     PieChartIcon,
     PlugInIcon,
+    TaskIcon,
     UserCircleIcon,
 } from "../icons";
 import {useSidebar} from "../context/SidebarContext";
@@ -30,6 +31,16 @@ const navItems: NavItem[] = [
         icon: <GridIcon/>,
         name: "Boshqaruv paneli",
         subItems: [{name: "Asosiy", path: "/", pro: false}],
+    },
+    {
+        icon: <TaskIcon/>,
+        name: "O'sish (8 hafta)",
+        subItems: [
+            {name: "Reja", path: "/growth/plan", pro: false},
+            {name: "Ko'rsatkichlar", path: "/growth/metrics", pro: false},
+            {name: "Kunlik marketing", path: "/growth/marketing", pro: false},
+            {name: "Maktablar", path: "/growth/schools", pro: false},
+        ],
     },
     {
         icon: <UserCircleIcon/>,

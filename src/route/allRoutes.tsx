@@ -24,6 +24,10 @@ import SubscriptionPlansPage from "../pages/SubscriptionPlans/SubscriptionPlans.
 import AddSubscriptionPlan from "../pages/SubscriptionPlans/AddSubscriptionPlan.tsx";
 import AppTranslationsPage from "../pages/AppTranslations/AppTranslationsPage.tsx";
 import AdminNotificationsPage from "../pages/AdminNotifications/AdminNotificationsPage.tsx";
+import PlanPage from "../pages/Growth/PlanPage.tsx";
+import MetricsPage from "../pages/Growth/MetricsPage.tsx";
+import MarketingPage from "../pages/Growth/MarketingPage.tsx";
+import SchoolsPage from "../pages/Growth/SchoolsPage.tsx";
 
 
 export const authProtectedRoutes = [
@@ -49,6 +53,10 @@ export const authProtectedRoutes = [
     {path: "/gift-orders", element: <GiftOrdersPage/>},
     {path: "/coin-settings", element: <CoinSettingsPage/>},
     {path: "/habits", element: <HabitsPage/>},
+    {path: "/growth/plan", element: <PlanPage/>},
+    {path: "/growth/metrics", element: <MetricsPage/>},
+    {path: "/growth/marketing", element: <MarketingPage/>},
+    {path: "/growth/schools", element: <SchoolsPage/>},
     {path: "/business-domains/update/:id", element: <AddBusinessDomain/>},
     {path: "/business-domains/add", element: <AddBusinessDomain/>},
     {path: "/business-domains", element: <BusinessDomainsPage/>},
