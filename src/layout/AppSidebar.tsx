@@ -22,6 +22,7 @@ import {
     TaskIcon,
     UserCircleIcon,
     VideoIcon,
+    ChatIcon,
 } from "../icons";
 import {useSidebar} from "../context/SidebarContext";
 
@@ -50,6 +51,11 @@ const navSections: NavSection[] = [
                 icon: <GroupIcon />,
                 name: "O'quvchilar",
                 path: "/students",
+            },
+            {
+                icon: <ChatIcon />,
+                name: "Chatlar",
+                path: "/chats",
             },
             {
                 icon: <TaskIcon />,

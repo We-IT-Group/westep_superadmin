@@ -30,6 +30,7 @@ import MarketingPage from "../pages/Growth/MarketingPage.tsx";
 import SchoolsPage from "../pages/Growth/SchoolsPage.tsx";
 import StudentsPage from "../pages/Students/StudentsPage.tsx";
 import StudentDetailPage from "../pages/Students/StudentDetailPage.tsx";
+import ChatsPage from "../pages/Chats/ChatsPage.tsx";
 
 
 export const authProtectedRoutes = [
@@ -61,6 +62,7 @@ export const authProtectedRoutes = [
     {path: "/growth/schools", element: <SchoolsPage/>},
     {path: "/students/:id", element: <StudentDetailPage/>},
     {path: "/students", element: <StudentsPage/>},
+    {path: "/chats", element: <ChatsPage/>},
     {path: "/business-domains/update/:id", element: <AddBusinessDomain/>},
     {path: "/business-domains/add", element: <AddBusinessDomain/>},
     {path: "/business-domains", element: <BusinessDomainsPage/>},
