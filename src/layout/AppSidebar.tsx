@@ -47,6 +47,11 @@ const navSections: NavSection[] = [
                 path: "/",
             },
             {
+                icon: <GroupIcon />,
+                name: "O'quvchilar",
+                path: "/students",
+            },
+            {
                 icon: <TaskIcon />,
                 name: "O'sish (8 hafta)",
                 subItems: [
@@ -164,7 +169,11 @@ const AppSidebar: React.FC = () => {
     const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
     const isActive = useCallback(
-        (path?: string) => Boolean(path && location.pathname === path),
+        (path?: string) => {
+            if (!path) return false;
+            if (path === "/") return location.pathname === "/";
+            return location.pathname === path || location.pathname.startsWith(`${path}/`);
+        },
         [location.pathname]
     );
 

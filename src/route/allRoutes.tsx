@@ -28,6 +28,8 @@ import PlanPage from "../pages/Growth/PlanPage.tsx";
 import MetricsPage from "../pages/Growth/MetricsPage.tsx";
 import MarketingPage from "../pages/Growth/MarketingPage.tsx";
 import SchoolsPage from "../pages/Growth/SchoolsPage.tsx";
+import StudentsPage from "../pages/Students/StudentsPage.tsx";
+import StudentDetailPage from "../pages/Students/StudentDetailPage.tsx";
 
 
 export const authProtectedRoutes = [
@@ -57,6 +59,8 @@ export const authProtectedRoutes = [
     {path: "/growth/metrics", element: <MetricsPage/>},
     {path: "/growth/marketing", element: <MarketingPage/>},
     {path: "/growth/schools", element: <SchoolsPage/>},
+    {path: "/students/:id", element: <StudentDetailPage/>},
+    {path: "/students", element: <StudentsPage/>},
     {path: "/business-domains/update/:id", element: <AddBusinessDomain/>},
     {path: "/business-domains/add", element: <AddBusinessDomain/>},
     {path: "/business-domains", element: <BusinessDomainsPage/>},
