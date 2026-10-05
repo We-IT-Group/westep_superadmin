@@ -1,7 +1,5 @@
 import {useMemo, useState} from "react";
 import PageMeta from "../../components/common/PageMeta";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb.tsx";
-import ComponentCard from "../../components/common/ComponentCard";
 import Button from "../../components/ui/button/Button.tsx";
 import Badge from "../../components/ui/badge/Badge";
 import {Modal} from "../../components/ui/modal";
@@ -25,6 +23,7 @@ import {
     SEGMENT_LABELS,
     TEXTAREA_CLASS,
 } from "./labels.ts";
+import GrowthNav from "./components/GrowthNav.tsx";
 
 const MAX_BODY = 4000;
 
@@ -123,7 +122,7 @@ export default function MarketingPage() {
         }
     };
 
-    // Postlarni kunlar bo'yicha guruhlash (kunlik marketing ro'yxati)
+    // Postlarni kunlar bo'yicha guruhlash
     const groupedPosts = useMemo(() => {
         const groups: Record<string, MarketingPostDto[]> = {};
         const sorted = [...posts].sort((a, b) => a.publishAt.localeCompare(b.publishAt));
@@ -143,35 +142,38 @@ export default function MarketingPage() {
     }, [posts, todayStr]);
 
     return (
-        <>
+        <div className="mx-auto max-w-7xl">
             {toast && <StatusToast message={toast.message} type={toast.type} onClose={() => setToast(null)}/>}
-            <PageMeta title="Kunlik marketing — Boshqaruv markazi" description="Kontent kalendari"/>
-            <PageBreadcrumb pageTitle="Kunlik marketing — Kontent kalendari"/>
+            <PageMeta title="Kunlik marketing — Kontent kalendari" description="Kontent kalendari"/>
+
+            <GrowthNav
+                title="Kunlik marketing va Kontent kalendari"
+                subtitle="Vaqtlar Toshkent bo'yicha. Tasdiqlangan postlar vaqti kelganda avtomatik Telegram kanalga joylanadi."
+                action={
+                    <Button size="sm" onClick={() => setDraft(emptyDraft())} className="min-h-[44px] shadow-sm active:scale-[0.98]">
+                        + Yangi post yaratish
+                    </Button>
+                }
+            />
 
             <div className="space-y-6">
-                <ComponentCard
-                    title="Kunlik kontent kalendari"
-                    desc="Vaqtlar Toshkent bo'yicha. 'Telegram kanal' postlari tasdiqlangach, vaqti kelganda avtomatik chiqadi; boshqa kanallar — qo'lda joylash uchun reja."
-                >
-                    {/* Sana oralig'i va Yangi post qo'shish */}
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs dark:border-gray-800 dark:bg-white/[0.02]">
+                    {/* Sana oralig'i va tezkor filtrlash */}
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-4 dark:border-gray-800">
                         <div className="flex flex-wrap items-center gap-2">
-                            <label htmlFor="from-date" className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                                Oraliq:
-                            </label>
+                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                Sana oralig'i:
+                            </span>
                             <input
-                                id="from-date"
+                                aria-label="Boshlanish sanasi"
                                 type="date"
                                 value={from}
                                 onChange={(e) => setFrom(e.target.value)}
                                 className={`${INPUT_CLASS} max-w-[160px]`}
                             />
                             <span className="text-gray-400">—</span>
-                            <label htmlFor="to-date" className="sr-only">
-                                Gacha sana
-                            </label>
                             <input
-                                id="to-date"
+                                aria-label="Tugash sanasi"
                                 type="date"
                                 value={to}
                                 onChange={(e) => setTo(e.target.value)}
@@ -179,9 +181,28 @@ export default function MarketingPage() {
                             />
                         </div>
 
-                        <Button size="sm" onClick={() => setDraft(emptyDraft())} className="min-h-[44px]">
-                            + Yangi post yaratish
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setFrom(todayStr);
+                                    setTo(isoDate(addDays(new Date(), 6)));
+                                }}
+                                className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                            >
+                                7 kun
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setFrom(todayStr);
+                                    setTo(isoDate(addDays(new Date(), 13)));
+                                }}
+                                className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                            >
+                                14 kun
+                            </button>
+                        </div>
                     </div>
 
                     {/* Kunlar bo'yicha guruhlangan postlar ro'yxati */}
@@ -189,27 +210,32 @@ export default function MarketingPage() {
                         {groupedPosts.map(({date, items, isToday}) => (
                             <div
                                 key={date}
-                                className={`rounded-xl border transition ${
+                                className={`rounded-2xl border transition-all ${
                                     isToday
-                                        ? "border-brand-300 bg-brand-50/20 dark:border-brand-500/30 dark:bg-brand-500/5"
+                                        ? "border-brand-500/40 bg-brand-50/20 dark:border-brand-500/30 dark:bg-brand-500/5 shadow-xs"
                                         : "border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.02]"
-                                } p-4`}
+                                } p-5`}
                             >
-                                <div className="flex items-center justify-between border-b border-gray-100 pb-2.5 dark:border-gray-800">
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="font-semibold text-sm text-gray-900 dark:text-white">
-                                            {date} {isToday ? "· Bugun" : ""}
-                                        </h3>
-                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                <div className="flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
+                                    <div className="flex items-center gap-2.5">
+                                        <span className="font-bold text-sm text-gray-900 dark:text-white">
+                                            {date}
+                                        </span>
+                                        {isToday && (
+                                            <span className="rounded-full bg-brand-500 px-2 py-0.5 text-[11px] font-bold text-white shadow-xs">
+                                                Bugun
+                                            </span>
+                                        )}
+                                        <span className="text-xs text-gray-400">
                                             ({items.length} ta post)
                                         </span>
                                     </div>
-                                    <span className="text-xs font-medium text-gray-400">
+                                    <span className="text-xs font-medium text-gray-400 capitalize">
                                         {new Date(date).toLocaleDateString("uz-UZ", {weekday: "long"})}
                                     </span>
                                 </div>
 
-                                <div className="mt-3 divide-y divide-gray-100 dark:divide-gray-800">
+                                <div className="mt-3.5 divide-y divide-gray-100 dark:divide-gray-800">
                                     {items.map((post) => {
                                         const isPublished = post.status === "PUBLISHED";
                                         const isApproved = post.status === "APPROVED";
@@ -218,11 +244,11 @@ export default function MarketingPage() {
                                         return (
                                             <div
                                                 key={post.id}
-                                                className="py-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
+                                                className="py-3.5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
                                             >
                                                 <div className="min-w-0 max-w-2xl">
                                                     <div className="flex flex-wrap items-center gap-2">
-                                                        <span className="font-semibold text-xs text-brand-600 dark:text-brand-400">
+                                                        <span className="font-mono font-bold text-xs text-brand-600 dark:text-brand-400">
                                                             {formatDateTime(post.publishAt)}
                                                         </span>
                                                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
@@ -236,30 +262,30 @@ export default function MarketingPage() {
                                                         </Badge>
                                                     </div>
 
-                                                    <h4 className="mt-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                                                        {post.title || post.body.slice(0, 60)}
+                                                    <h4 className="mt-1.5 text-sm font-semibold text-gray-900 dark:text-white">
+                                                        {post.title || post.body.slice(0, 70)}
                                                     </h4>
 
-                                                    <p className="mt-1 text-xs text-gray-500 line-clamp-2 dark:text-gray-400 whitespace-pre-line">
+                                                    <p className="mt-1 text-xs text-gray-600 line-clamp-2 dark:text-gray-400 whitespace-pre-line leading-relaxed">
                                                         {post.body}
                                                     </p>
 
                                                     {post.promoCode && (
-                                                        <div className="mt-1 text-xs font-semibold text-brand-600">
-                                                            Promo-kod: {post.promoCode}
+                                                        <div className="mt-1.5 inline-flex items-center gap-1 rounded bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
+                                                            <span>🎟️ Promo:</span> {post.promoCode}
                                                         </div>
                                                     )}
 
                                                     {isFailed && post.errorMessage && (
-                                                        <div className="mt-2 rounded-md bg-error-50 p-2 text-xs font-medium text-error-700 dark:bg-error-500/10 dark:text-error-300">
-                                                            Xatolik sababi: {post.errorMessage}
+                                                        <div className="mt-2 rounded-lg bg-error-50 p-2.5 text-xs font-semibold text-error-700 dark:bg-error-500/10 dark:text-error-300">
+                                                            ⚠️ Chiqishda xatolik sababi: {post.errorMessage}
                                                         </div>
                                                     )}
                                                 </div>
 
                                                 <div className="flex flex-wrap items-center gap-2 shrink-0">
                                                     {isPublished ? (
-                                                        <span className="text-xs text-gray-500">
+                                                        <span className="text-xs font-medium text-success-600 dark:text-success-400">
                                                             Chiqdi: {formatDateTime(post.publishedAt)}
                                                         </span>
                                                     ) : (
@@ -268,7 +294,7 @@ export default function MarketingPage() {
                                                                 size="sm"
                                                                 variant="outline"
                                                                 onClick={() => setDraft(toDraft(post))}
-                                                                className="min-h-[36px]"
+                                                                className="min-h-[38px]"
                                                             >
                                                                 Tahrirlash
                                                             </Button>
@@ -283,7 +309,7 @@ export default function MarketingPage() {
                                                                             "Qoralamaga qaytarildi",
                                                                         )
                                                                     }
-                                                                    className="min-h-[36px]"
+                                                                    className="min-h-[38px]"
                                                                 >
                                                                     Qaytarish
                                                                 </Button>
@@ -296,7 +322,7 @@ export default function MarketingPage() {
                                                                             "Post tasdiqlandi",
                                                                         )
                                                                     }
-                                                                    className="min-h-[36px]"
+                                                                    className="min-h-[38px] shadow-xs active:scale-[0.98]"
                                                                 >
                                                                     Tasdiqlash
                                                                 </Button>
@@ -313,7 +339,7 @@ export default function MarketingPage() {
                                                                         );
                                                                     }
                                                                 }}
-                                                                className="min-h-[36px]"
+                                                                className="min-h-[38px]"
                                                             >
                                                                 O'chirish
                                                             </Button>
@@ -328,12 +354,12 @@ export default function MarketingPage() {
                         ))}
 
                         {!isPending && groupedPosts.length === 0 && (
-                            <div className="rounded-xl border border-dashed border-gray-300 p-12 text-center dark:border-gray-700">
-                                <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                    Bu oraliqqa hali post rejalashtirilmagan
-                                </div>
+                            <div className="rounded-2xl border border-dashed border-gray-200 p-12 text-center dark:border-gray-800">
+                                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                    Tanlangan oraliqda postlar rejalashtirilmagan
+                                </p>
                                 <p className="mt-1 text-xs text-gray-500">
-                                    Telegram kanal yoki boshqa ijtimoiy tarmoqlar uchun birinchi postni qo'shing.
+                                    Telegram kanal yoki boshqa tarmoqlar uchun birinchi postni yarating.
                                 </p>
                                 <div className="mt-4">
                                     <Button size="sm" onClick={() => setDraft(emptyDraft())} className="min-h-[44px]">
@@ -344,32 +370,32 @@ export default function MarketingPage() {
                         )}
 
                         {isPending && (
-                            <div className="p-8 text-center text-sm text-gray-500">
+                            <div className="p-12 text-center text-sm text-gray-500">
                                 Postlar yuklanmoqda…
                             </div>
                         )}
                     </div>
-                </ComponentCard>
+                </div>
             </div>
 
             {/* Post Yaratish / Tahrirlash Modali & Telegram Ko'rinishi */}
-            <Modal isOpen={Boolean(draft)} onClose={() => setDraft(null)} className="max-w-[760px] m-4 p-6 sm:p-8">
+            <Modal isOpen={Boolean(draft)} onClose={() => setDraft(null)} className="max-w-[760px] m-4 p-6 sm:p-8 rounded-2xl">
                 {draft && (
                     <div className="space-y-4">
                         <div className="flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
-                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                                 {draft.id ? "Postni tahrirlash" : "Yangi post yaratish"}
                             </h3>
-                            <span className="text-xs text-gray-500 font-medium">Maksimal 4000 belgi</span>
+                            <span className="text-xs text-gray-500 font-semibold">Maksimal 4000 belgi</span>
                         </div>
 
                         <div className="grid gap-3 sm:grid-cols-3">
                             <div>
-                                <label htmlFor="post-time" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <label htmlFor="post-publish-time" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Chiqish vaqti (Toshkent) *
                                 </label>
                                 <input
-                                    id="post-time"
+                                    id="post-publish-time"
                                     type="datetime-local"
                                     value={draft.publishAt}
                                     onChange={(e) => setDraft({...draft, publishAt: e.target.value})}
@@ -432,10 +458,10 @@ export default function MarketingPage() {
                             <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Telegram ko'rinishi (Oldindan ko'rish)
                             </label>
-                            <div className="rounded-xl border border-gray-200 bg-[#eef1f5] p-4 dark:border-gray-800 dark:bg-gray-900/60">
-                                <div className="max-w-[480px] rounded-xl bg-white p-3.5 shadow-sm dark:bg-gray-800">
+                            <div className="rounded-2xl border border-gray-200 bg-[#eef1f5] p-4 dark:border-gray-800 dark:bg-gray-900/60">
+                                <div className="max-w-[480px] rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-800">
                                     {draft.imageUrl && (
-                                        <div className="mb-2 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700">
+                                        <div className="mb-2.5 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-700">
                                             <img
                                                 src={draft.imageUrl}
                                                 alt="Post preview"
@@ -446,10 +472,10 @@ export default function MarketingPage() {
                                             />
                                         </div>
                                     )}
-                                    <div className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-line leading-relaxed">
+                                    <div className="text-xs text-gray-900 dark:text-gray-100 whitespace-pre-line leading-relaxed">
                                         {draft.body || "Post matni bu yerda ko'rinadi..."}
                                     </div>
-                                    <div className="mt-2 flex items-center justify-between text-[11px] text-gray-400">
+                                    <div className="mt-2.5 flex items-center justify-between text-[11px] text-gray-400">
                                         <span>{draft.promoCode ? `Promo: ${draft.promoCode}` : ""}</span>
                                         <span>{draft.publishAt.slice(11, 16) || "19:00"} ✓</span>
                                     </div>
@@ -463,7 +489,7 @@ export default function MarketingPage() {
                                     Post matni * (faqat dalillar kutubxonasidagi da'volar)
                                 </label>
                                 <span
-                                    className={`text-xs font-medium ${
+                                    className={`text-xs font-semibold ${
                                         draft.body.length > MAX_BODY ? "text-error-600 font-bold" : "text-gray-500"
                                     }`}
                                 >
@@ -523,7 +549,7 @@ export default function MarketingPage() {
                             <Button
                                 onClick={() => handleSave(true)}
                                 isPending={savePost.isPending || approve.isPending}
-                                className="min-h-[44px]"
+                                className="min-h-[44px] shadow-sm active:scale-[0.98]"
                             >
                                 Saqlash va Tasdiqlash
                             </Button>
@@ -531,6 +557,6 @@ export default function MarketingPage() {
                     </div>
                 )}
             </Modal>
-        </>
+        </div>
     );
 }

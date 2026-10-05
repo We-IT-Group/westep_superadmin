@@ -1,8 +1,6 @@
 import {useMemo, useState} from "react";
 import {ColumnDef} from "@tanstack/react-table";
 import PageMeta from "../../components/common/PageMeta";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb.tsx";
-import ComponentCard from "../../components/common/ComponentCard";
 import CommonTable from "../../components/tables/CommonTable/CommonTable.tsx";
 import Button from "../../components/ui/button/Button.tsx";
 import Badge from "../../components/ui/badge/Badge";
@@ -11,6 +9,7 @@ import StatusToast from "../../components/paymentSettings/StatusToast.tsx";
 import {SchoolLeadDto, SchoolLeadStage} from "../../api/growth/growthApi.ts";
 import {useDeleteSchoolLead, useSaveSchoolLead, useSchoolLeads} from "../../api/growth/useGrowth.ts";
 import {formatSom, INPUT_CLASS, isoDate, STAGE_LABELS} from "./labels.ts";
+import GrowthNav from "./components/GrowthNav.tsx";
 
 interface LeadDraft {
     id: string | null;
@@ -121,10 +120,10 @@ export default function SchoolsPage() {
     const columns: ColumnDef<SchoolLeadDto>[] = [
         {
             accessorKey: "name",
-            header: "Maktab",
+            header: "Maktab nomi",
             cell: ({row}) => (
                 <div className="py-1">
-                    <div className="font-semibold text-gray-900 dark:text-white/90">
+                    <div className="font-semibold text-sm text-gray-900 dark:text-white">
                         {row.original.name}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -138,13 +137,13 @@ export default function SchoolsPage() {
             header: "Mas'ul shaxs va telefon",
             cell: ({row}) => (
                 <div className="text-xs">
-                    <div className="font-medium text-gray-800 dark:text-gray-200">
+                    <div className="font-medium text-gray-900 dark:text-gray-200">
                         {row.original.contactName || "—"}
                     </div>
                     {row.original.contactPhone && (
                         <a
                             href={`tel:${row.original.contactPhone}`}
-                            className="mt-0.5 inline-block text-brand-600 hover:underline dark:text-brand-400"
+                            className="mt-0.5 inline-block font-mono text-brand-600 hover:underline dark:text-brand-400"
                         >
                             {row.original.contactPhone}
                         </a>
@@ -163,9 +162,9 @@ export default function SchoolsPage() {
         },
         {
             accessorKey: "studentCount",
-            header: "O'quvchilar",
+            header: "O'quvchilar soni",
             cell: ({row}) => (
-                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                <span className="text-xs font-semibold text-gray-800 dark:text-gray-200">
                     {row.original.studentCount != null ? `${row.original.studentCount.toLocaleString("ru-RU")} ta` : "—"}
                 </span>
             ),
@@ -174,7 +173,7 @@ export default function SchoolsPage() {
             accessorKey: "monthlyFee",
             header: "Kutilayotgan oylik to'lov",
             cell: ({row}) => (
-                <span className="text-xs font-semibold text-gray-900 dark:text-white">
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
                     {row.original.monthlyFee != null ? formatSom(row.original.monthlyFee) : "—"}
                 </span>
             ),
@@ -190,7 +189,7 @@ export default function SchoolsPage() {
 
                 return (
                     <span
-                        className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded ${
+                        className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md ${
                             isOverdue
                                 ? "bg-error-50 text-error-700 dark:bg-error-500/10 dark:text-error-300"
                                 : isToday
@@ -207,52 +206,59 @@ export default function SchoolsPage() {
             id: "actions",
             header: "",
             cell: ({row}) => (
-                <div className="flex items-center justify-end gap-2">
-                    <Button
-                        size="sm"
-                        variant="outline"
+                <div className="flex items-center justify-end gap-1.5">
+                    <button
+                        type="button"
                         onClick={() => setDraft(toDraft(row.original))}
-                        className="min-h-[36px]"
+                        className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition"
                     >
                         Tahrirlash
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="danger"
+                    </button>
+                    <button
+                        type="button"
                         onClick={() => handleDelete(row.original)}
-                        className="min-h-[36px]"
+                        className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-error-600 hover:bg-error-50 dark:hover:bg-error-500/10 transition"
                     >
                         O'chirish
-                    </Button>
+                    </button>
                 </div>
             ),
         },
     ];
 
     return (
-        <>
+        <div className="mx-auto max-w-7xl">
             {toast && <StatusToast message={toast.message} type={toast.type} onClose={() => setToast(null)}/>}
-            <PageMeta title="Maktablar — Boshqaruv markazi" description="Xususiy maktablar pilot dasturi"/>
-            <PageBreadcrumb pageTitle="Xususiy maktablar — Pilot dasturi"/>
+            <PageMeta title="Maktablar — Xususiy maktablar pilot dasturi" description="Xususiy maktablar pilot dasturi"/>
+
+            <GrowthNav
+                title="Xususiy maktablar (B2B Pilot)"
+                subtitle="Maqsad: 10 ta murojaat → 5 ta demo → 3 ta pilot → 1–2 ta doimiy litsenziya."
+                action={
+                    <Button size="sm" onClick={() => setDraft(emptyDraft())} className="min-h-[44px] shadow-sm active:scale-[0.98]">
+                        + Yangi maktab qo'shish
+                    </Button>
+                }
+            />
 
             <div className="space-y-6">
-                {/* 1. Xususiy maktablar bosqichlar voronkasi (Visual Stage Funnel) */}
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-xs dark:border-gray-800 dark:bg-white/[0.03]">
-                    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
+                {/* 1. Xususiy maktablar bosqichlar voronkasi (Visual Stage Funnel Pipeline) */}
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs dark:border-gray-800 dark:bg-white/[0.02]">
+                    <div className="border-b border-gray-100 pb-3 dark:border-gray-800 flex items-center justify-between">
                         <div>
-                            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
-                                Maktablar konversiya voronkasi
+                            <h2 className="text-sm font-bold text-gray-900 dark:text-white">
+                                Maktablar CRM bosqichlari
                             </h2>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                                8 haftalik maqsad: 10 ta murojaat → 5 ta demo → 3 ta pilot → 1–2 ta doimiy litsenziya.
+                                Har bir bosqich kartasini bosib, faqat shu bosqichdagi maktablarni ko'rishingiz mumkin.
                             </p>
                         </div>
-                        <Button size="sm" onClick={() => setDraft(emptyDraft())} className="min-h-[44px]">
-                            + Yangi maktab qo'shish
-                        </Button>
+                        <span className="text-xs font-medium text-gray-400">
+                            Jami: {leads.length} ta maktab
+                        </span>
                     </div>
 
-                    <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-6">
+                    <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-6">
                         {STAGES.map((s) => {
                             const isSelected = stage === s;
                             const count = countOf(s);
@@ -263,18 +269,18 @@ export default function SchoolsPage() {
                                     key={s}
                                     type="button"
                                     onClick={() => setStage(stage === s ? "" : s)}
-                                    className={`group flex flex-col justify-between rounded-xl border p-3 text-left transition min-h-[72px] ${
+                                    className={`group flex flex-col justify-between rounded-xl border p-3.5 text-left transition-all min-h-[76px] active:scale-[0.98] ${
                                         isSelected
-                                            ? "border-brand-500 bg-brand-50/60 dark:bg-brand-500/10 ring-1 ring-brand-500"
+                                            ? "border-brand-500 bg-brand-50/70 dark:bg-brand-500/10 ring-1 ring-brand-500 shadow-xs"
                                             : "border-gray-200 bg-white hover:border-gray-300 dark:border-gray-800 dark:bg-gray-900"
                                     }`}
                                 >
-                                    <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                                    <div className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
                                         {STAGE_LABELS[s]}
                                     </div>
                                     <div className="mt-1 flex items-baseline justify-between">
                                         <span
-                                            className={`text-2xl font-bold ${
+                                            className={`text-2xl font-black ${
                                                 isLost
                                                     ? "text-gray-400 dark:text-gray-500"
                                                     : count > 0
@@ -284,8 +290,8 @@ export default function SchoolsPage() {
                                         >
                                             {count}
                                         </span>
-                                        <span className="text-[10px] text-gray-400 group-hover:text-brand-600 transition">
-                                            {isSelected ? "Filtrni yechish" : "Filtrlash"}
+                                        <span className="text-[10px] font-medium text-gray-400 group-hover:text-brand-600 transition">
+                                            {isSelected ? "Yechish" : "Filtr"}
                                         </span>
                                     </div>
                                 </button>
@@ -295,41 +301,44 @@ export default function SchoolsPage() {
                 </div>
 
                 {/* 2. Maktablar jadvali */}
-                <ComponentCard
-                    title="Maktablar ro'yxati"
-                    desc="Keyingi qadam sanasini doimiy nazorat qiling; muzokaralar to'xtab qolmasligi lozim."
-                >
-                    <div className="flex flex-wrap items-center justify-between gap-3 pb-3">
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs dark:border-gray-800 dark:bg-white/[0.02]">
+                    <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
                         <div className="flex items-center gap-2">
                             <span className="text-xs text-gray-500 font-medium">Filtr:</span>
                             <button
                                 type="button"
                                 onClick={() => setStage("")}
-                                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                                     stage === ""
-                                        ? "bg-brand-500 text-white"
+                                        ? "bg-brand-500 text-white shadow-xs"
                                         : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300"
                                 }`}
                             >
-                                Hammasi ({leads.length})
+                                Barchasi ({leads.length})
                             </button>
                             {stage !== "" && (
-                                <span className="inline-flex items-center gap-1 rounded-md bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
-                                    {STAGE_LABELS[stage]} ({visible.length})
+                                <span className="inline-flex items-center gap-1 rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-bold text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
+                                    Tanlandi: {STAGE_LABELS[stage]} ({visible.length})
                                 </span>
                             )}
                         </div>
+
+                        <span className="text-xs text-gray-400">
+                            Muzokara holatini o'z vaqtida yangilab turing
+                        </span>
                     </div>
 
-                    <CommonTable data={visible} columns={columns} isPending={isPending}/>
+                    <div className="mt-4">
+                        <CommonTable data={visible} columns={columns} isPending={isPending}/>
+                    </div>
 
                     {!isPending && visible.length === 0 && (
-                        <div className="rounded-xl border border-dashed border-gray-200 p-8 text-center dark:border-gray-800">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                {stage ? `"${STAGE_LABELS[stage]}" bosqichida maktablar topilmadi.` : "Hali maktablar kiritilmagan."}
+                        <div className="rounded-2xl border border-dashed border-gray-200 p-12 text-center dark:border-gray-800">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                {stage ? `"${STAGE_LABELS[stage]}" bosqichida maktablar topilmadi.` : "Hali maktablar ro'yxati kiritilmagan."}
                             </p>
                             <p className="mt-1 text-xs text-gray-500">
-                                Xususiy maktablar bilan aloqa boshlanganda yangi maktab qo'shing.
+                                8 haftalik sotuv rejasi doirasida xususiy maktablar bilan aloqani boshlang.
                             </p>
                             <div className="mt-4">
                                 <Button size="sm" onClick={() => setDraft(emptyDraft())} className="min-h-[44px]">
@@ -338,19 +347,19 @@ export default function SchoolsPage() {
                             </div>
                         </div>
                     )}
-                </ComponentCard>
+                </div>
             </div>
 
             {/* Maktab Qo'shish / Tahrirlash Modali */}
-            <Modal isOpen={Boolean(draft)} onClose={() => setDraft(null)} className="max-w-[680px] m-4 p-6 sm:p-8">
+            <Modal isOpen={Boolean(draft)} onClose={() => setDraft(null)} className="max-w-[680px] m-4 p-6 sm:p-8 rounded-2xl">
                 {draft && (
                     <div className="space-y-4">
                         <div className="border-b border-gray-100 pb-3 dark:border-gray-800">
-                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                                 {draft.id ? "Maktab ma'lumotlarini tahrirlash" : "Yangi maktab qo'shish"}
                             </h3>
                             <p className="mt-0.5 text-xs text-gray-500">
-                                Xususiy maktab bilan muzokara tafsilotlari va navbatdagi qadam
+                                Xususiy maktab bilan muzokara bosqichi va keyingi qadam sanasi
                             </p>
                         </div>
 
@@ -446,7 +455,7 @@ export default function SchoolsPage() {
 
                             <div>
                                 <label htmlFor="school-fee" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Oylik to'lov (so'm)
+                                    Kutilayotgan oylik narx (so'm)
                                 </label>
                                 <input
                                     id="school-fee"
@@ -455,7 +464,7 @@ export default function SchoolsPage() {
                                     value={draft.monthlyFee}
                                     onChange={(e) => setDraft({...draft, monthlyFee: e.target.value})}
                                     className={INPUT_CLASS}
-                                    placeholder="Masalan: 1500000"
+                                    placeholder="1500000"
                                 />
                             </div>
                         </div>
@@ -492,13 +501,13 @@ export default function SchoolsPage() {
                             <Button variant="outline" onClick={() => setDraft(null)} className="min-h-[44px]">
                                 Bekor qilish
                             </Button>
-                            <Button onClick={handleSave} isPending={saveLead.isPending} className="min-h-[44px]">
+                            <Button onClick={handleSave} isPending={saveLead.isPending} className="min-h-[44px] shadow-sm active:scale-[0.98]">
                                 Saqlash
                             </Button>
                         </div>
                     </div>
                 )}
             </Modal>
-        </>
+        </div>
     );
 }

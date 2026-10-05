@@ -1,8 +1,6 @@
 import {useMemo, useState} from "react";
 import {ColumnDef} from "@tanstack/react-table";
 import PageMeta from "../../components/common/PageMeta";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb.tsx";
-import ComponentCard from "../../components/common/ComponentCard";
 import CommonTable from "../../components/tables/CommonTable/CommonTable.tsx";
 import Button from "../../components/ui/button/Button.tsx";
 import Badge from "../../components/ui/badge/Badge";
@@ -23,6 +21,7 @@ import {
     TASK_STATUS_LABELS,
     TEXTAREA_CLASS,
 } from "./labels.ts";
+import GrowthNav from "./components/GrowthNav.tsx";
 
 interface TaskDraft {
     id: string | null;
@@ -78,7 +77,7 @@ export default function PlanPage() {
 
     const todayStr = useMemo(() => isoDate(new Date()), []);
 
-    // Bugun va kechikkan vazifalar (eng muhimi birinchi)
+    // Bugun va kechikkan vazifalar
     const urgentTasks = useMemo(() => {
         return tasks
             .filter((t) => t.dueDate && t.dueDate <= todayStr && t.status !== "DONE")
@@ -89,6 +88,9 @@ export default function PlanPage() {
         () => tasks.filter((t) => (week === 0 || t.week === week) && (!area || t.area === area)),
         [tasks, week, area],
     );
+
+    const overallDone = useMemo(() => tasks.filter((t) => t.status === "DONE").length, [tasks]);
+    const overallBlocked = useMemo(() => tasks.filter((t) => t.status === "BLOCKED").length, [tasks]);
 
     const progressCount = (w: number) => {
         const list = w === 0 ? tasks : tasks.filter((t) => t.week === w);
@@ -108,10 +110,10 @@ export default function PlanPage() {
     };
 
     const handleDelete = async (task: GrowthTaskDto) => {
-        if (!window.confirm(`"${task.title}" vazifasini o'chirishni tasdiqlaysizmi? Bu amalni ortga qaytarib bo'lmaydi.`)) return;
+        if (!window.confirm(`"${task.title}" vazifasini o'chirishni tasdiqlaysizmi?`)) return;
         try {
             await deleteTask.mutateAsync(task.id);
-            notify("Vazifa muvaffaqiyatli o'chirildi", "success");
+            notify("Vazifa o'chirildi", "success");
         } catch (e) {
             notify((e as Error).message, "error");
         }
@@ -151,7 +153,7 @@ export default function PlanPage() {
             accessorKey: "week",
             header: "Hafta",
             cell: ({row}) => (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                     {row.original.week}-hafta
                 </span>
             ),
@@ -160,25 +162,27 @@ export default function PlanPage() {
             accessorKey: "code",
             header: "Kod",
             cell: ({row}) => (
-                <span className="font-mono text-xs font-semibold text-brand-600 dark:text-brand-400">
+                <span className="font-mono text-xs font-bold text-brand-600 dark:text-brand-400">
                     {row.original.code || "—"}
                 </span>
             ),
         },
         {
             accessorKey: "title",
-            header: "Vazifa",
+            header: "Vazifa tafsiloti",
             cell: ({row}) => (
-                <div className="max-w-md py-1">
-                    <div className="font-medium text-gray-900 dark:text-white/90">{row.original.title}</div>
+                <div className="max-w-md py-1.5">
+                    <div className="font-medium text-sm text-gray-900 dark:text-white">
+                        {row.original.title}
+                    </div>
                     {row.original.description && (
                         <p className="mt-0.5 text-xs text-gray-500 line-clamp-2 dark:text-gray-400">
                             {row.original.description}
                         </p>
                     )}
                     {row.original.note && (
-                        <div className="mt-1 flex items-center gap-1 text-xs text-warning-700 dark:text-warning-400">
-                            <span className="font-medium">Izoh:</span> {row.original.note}
+                        <div className="mt-1 flex items-center gap-1.5 rounded bg-warning-50 px-2 py-0.5 text-xs font-medium text-warning-800 dark:bg-warning-500/10 dark:text-warning-300 w-fit">
+                            <span>⚠️ Izoh:</span> {row.original.note}
                         </div>
                     )}
                 </div>
@@ -188,7 +192,7 @@ export default function PlanPage() {
             accessorKey: "area",
             header: "Yo'nalish",
             cell: ({row}) => (
-                <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">
+                <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                     {AREA_LABELS[row.original.area]}
                 </span>
             ),
@@ -198,12 +202,12 @@ export default function PlanPage() {
             header: "Muddat",
             cell: ({row}) => {
                 const due = row.original.dueDate;
-                if (!due) return <span className="text-gray-400">—</span>;
+                if (!due) return <span className="text-gray-400 text-xs">—</span>;
                 const isOverdue = due < todayStr && row.original.status !== "DONE";
                 const isToday = due === todayStr && row.original.status !== "DONE";
                 return (
                     <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded ${
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
                             isOverdue
                                 ? "bg-error-50 text-error-700 dark:bg-error-500/10 dark:text-error-300"
                                 : isToday
@@ -211,7 +215,7 @@ export default function PlanPage() {
                                 : "text-gray-600 dark:text-gray-400"
                         }`}
                     >
-                        {due} {isOverdue ? "(kechikdi)" : isToday ? "(bugun)" : ""}
+                        {due} {isOverdue ? "· Kechikdi" : isToday ? "· Bugun" : ""}
                     </span>
                 );
             },
@@ -228,7 +232,7 @@ export default function PlanPage() {
                         aria-label="Holatni o'zgartirish"
                         value={row.original.status}
                         onChange={(e) => handleStatus(row.original.id, e.target.value as GrowthTaskStatus)}
-                        className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700 shadow-sm focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                        className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 shadow-xs focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 transition"
                     >
                         {Object.entries(TASK_STATUS_LABELS).map(([value, label]) => (
                             <option key={value} value={value}>
@@ -243,84 +247,126 @@ export default function PlanPage() {
             id: "actions",
             header: "",
             cell: ({row}) => (
-                <div className="flex items-center justify-end gap-2">
-                    <Button
-                        size="sm"
-                        variant="outline"
+                <div className="flex items-center justify-end gap-1.5">
+                    <button
+                        type="button"
                         onClick={() => setDraft(toDraft(row.original))}
-                        className="min-h-[36px]"
+                        className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition"
                     >
                         Tahrirlash
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="danger"
+                    </button>
+                    <button
+                        type="button"
                         onClick={() => handleDelete(row.original)}
-                        className="min-h-[36px]"
+                        className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-error-600 hover:bg-error-50 dark:hover:bg-error-500/10 transition"
                     >
                         O'chirish
-                    </Button>
+                    </button>
                 </div>
             ),
         },
     ];
 
     return (
-        <>
+        <div className="mx-auto max-w-7xl">
             {toast && <StatusToast message={toast.message} type={toast.type} onClose={() => setToast(null)}/>}
-            <PageMeta title="Reja — Boshqaruv markazi" description="8 haftalik sotuv rejasi"/>
-            <PageBreadcrumb pageTitle="Reja — 8 hafta"/>
+            <PageMeta title="Reja — 8 haftalik sotuv rejasi" description="8 haftalik sotuv rejasi"/>
+
+            <GrowthNav
+                title="8 haftalik sotuv rejasi"
+                subtitle="Reja davri: 6-oktabr — 29-noyabr, 2026. Har kuni 08:00 da muddati kelgan vazifalar Telegram'ga yuboriladi."
+                action={
+                    <Button
+                        size="sm"
+                        onClick={() => setDraft(emptyDraft(week))}
+                        className="min-h-[44px] shadow-sm active:scale-[0.98]"
+                    >
+                        + Yangi vazifa qo'shish
+                    </Button>
+                }
+            />
+
+            {/* Quick KPI stats strip */}
+            <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="rounded-xl border border-gray-200 bg-white p-3.5 shadow-xs dark:border-gray-800 dark:bg-gray-900/60">
+                    <div className="text-xs text-gray-500">Jami vazifalar</div>
+                    <div className="mt-1 text-xl font-bold text-gray-900 dark:text-white">{tasks.length} ta</div>
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-white p-3.5 shadow-xs dark:border-gray-800 dark:bg-gray-900/60">
+                    <div className="text-xs text-success-600">Bajarildi</div>
+                    <div className="mt-1 text-xl font-bold text-success-700 dark:text-success-400">
+                        {overallDone} ta ({tasks.length > 0 ? Math.round((overallDone / tasks.length) * 100) : 0}%)
+                    </div>
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-white p-3.5 shadow-xs dark:border-gray-800 dark:bg-gray-900/60">
+                    <div className="text-xs text-warning-600">Bugun / Kechikkan</div>
+                    <div className="mt-1 text-xl font-bold text-warning-700 dark:text-warning-400">
+                        {urgentTasks.length} ta
+                    </div>
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-white p-3.5 shadow-xs dark:border-gray-800 dark:bg-gray-900/60">
+                    <div className="text-xs text-error-600">To'xtab qolgan</div>
+                    <div className="mt-1 text-xl font-bold text-error-700 dark:text-error-400">
+                        {overallBlocked} ta
+                    </div>
+                </div>
+            </div>
 
             <div className="space-y-6">
-                {/* 1. "Bugun va kechikkanlar" bloki (CEO ertalab birinchi ko'radigan bo'lim) */}
+                {/* 1. "Bugun va kechikkan vazifalar" bloki (CEO ertalab birinchi ko'radigan qism) */}
                 {urgentTasks.length > 0 && (
-                    <div className="rounded-xl border border-warning-200 bg-warning-50/60 p-4 dark:border-warning-500/20 dark:bg-warning-500/5">
+                    <div className="rounded-2xl border border-warning-200 bg-gradient-to-r from-warning-50/80 to-amber-50/40 p-5 shadow-xs dark:border-warning-500/20 dark:from-warning-500/10 dark:to-transparent">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <span className="inline-flex size-2 rounded-full bg-warning-500 animate-pulse" />
-                                <h3 className="font-semibold text-sm text-warning-900 dark:text-warning-200">
+                            <div className="flex items-center gap-2.5">
+                                <span className="relative flex size-2.5">
+                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-warning-400 opacity-75" />
+                                    <span className="relative inline-flex size-2.5 rounded-full bg-warning-500" />
+                                </span>
+                                <h3 className="font-semibold text-sm text-warning-950 dark:text-warning-200">
                                     Bugun va kechikkan vazifalar ({urgentTasks.length} ta)
                                 </h3>
                             </div>
-                            <span className="text-xs text-warning-700 dark:text-warning-300 font-medium">
-                                Bugungi sana: {todayStr}
+                            <span className="text-xs font-semibold text-warning-800 dark:text-warning-300">
+                                {todayStr}
                             </span>
                         </div>
-                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+
+                        <div className="mt-3.5 grid gap-2.5 sm:grid-cols-2">
                             {urgentTasks.map((t) => (
                                 <div
                                     key={t.id}
-                                    className="flex items-center justify-between rounded-lg border border-warning-200 bg-white p-3 shadow-xs dark:border-gray-800 dark:bg-gray-900"
+                                    className="flex items-center justify-between rounded-xl border border-warning-200/80 bg-white p-3.5 shadow-xs dark:border-gray-800 dark:bg-gray-900"
                                 >
-                                    <div className="min-w-0 pr-2">
-                                        <div className="flex items-center gap-1.5">
+                                    <div className="min-w-0 pr-3">
+                                        <div className="flex items-center gap-2">
                                             {t.code && (
-                                                <span className="font-mono text-xs font-semibold text-brand-600">
+                                                <span className="font-mono text-xs font-bold text-brand-600 dark:text-brand-400">
                                                     [{t.code}]
                                                 </span>
                                             )}
-                                            <span className="truncate text-xs font-medium text-gray-900 dark:text-white">
+                                            <span className="truncate text-xs font-semibold text-gray-900 dark:text-white">
                                                 {t.title}
                                             </span>
                                         </div>
-                                        <div className="text-[11px] text-gray-500">
-                                            Muddat: {t.dueDate} {t.dueDate && t.dueDate < todayStr ? "— Kechikdi" : "— Bugun"}
+                                        <div className="mt-1 flex items-center gap-2 text-[11px] text-gray-500">
+                                            <span>Muddat: {t.dueDate}</span>
+                                            <span className="text-warning-700 font-medium">
+                                                {t.dueDate && t.dueDate < todayStr ? "— Kechikdi" : "— Bugun"}
+                                            </span>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1.5 shrink-0">
-                                        <select
-                                            aria-label="Tezkor holat"
-                                            value={t.status}
-                                            onChange={(e) => handleStatus(t.id, e.target.value as GrowthTaskStatus)}
-                                            className="rounded border border-gray-300 bg-transparent px-2 py-1 text-xs dark:border-gray-700"
-                                        >
-                                            {Object.entries(TASK_STATUS_LABELS).map(([value, label]) => (
-                                                <option key={value} value={value}>
-                                                    {label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                    <select
+                                        aria-label="Holatni tezkor almashtirish"
+                                        value={t.status}
+                                        onChange={(e) => handleStatus(t.id, e.target.value as GrowthTaskStatus)}
+                                        className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 shadow-xs focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                                    >
+                                        {Object.entries(TASK_STATUS_LABELS).map(([value, label]) => (
+                                            <option key={value} value={value}>
+                                                {label}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             ))}
                         </div>
@@ -328,12 +374,9 @@ export default function PlanPage() {
                 )}
 
                 {/* 2. Asosiy reja komponenti */}
-                <ComponentCard
-                    title="8 haftalik sotuv rejasi"
-                    desc="6-oktabr — 29-noyabr. Vazifa holatini qatorda o'zgartiring; muddati kelgan vazifalar har kuni 08:00 da Telegram'ga keladi."
-                >
-                    {/* Hafta tanlash tablari va kichik progress */}
-                    <div className="space-y-3">
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs dark:border-gray-800 dark:bg-white/[0.02]">
+                    {/* Hafta tanlash tablari va qulay progress */}
+                    <div className="space-y-4">
                         <div className="flex flex-wrap gap-2">
                             {[0, ...WEEKS].map((w) => {
                                 const {done, total} = progressCount(w);
@@ -344,21 +387,21 @@ export default function PlanPage() {
                                         key={w}
                                         type="button"
                                         onClick={() => setWeek(w)}
-                                        className={`group relative flex flex-col justify-between rounded-lg border px-3 py-2 text-left transition min-w-[100px] min-h-[44px] ${
+                                        className={`group relative flex flex-col justify-between rounded-xl border px-3.5 py-2.5 text-left transition-all min-w-[105px] min-h-[50px] active:scale-[0.98] ${
                                             isSelected
-                                                ? "border-brand-500 bg-brand-50/70 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300"
-                                                : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300"
+                                                ? "border-brand-500 bg-brand-50/70 text-brand-700 shadow-xs ring-1 ring-brand-500/30 dark:bg-brand-500/10 dark:text-brand-300"
+                                                : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50/50 dark:border-gray-800 dark:bg-gray-900/60 dark:text-gray-300 dark:hover:bg-gray-800"
                                         }`}
                                     >
-                                        <div className="flex items-center justify-between text-xs font-medium">
+                                        <div className="flex items-center justify-between text-xs font-semibold">
                                             <span>{w === 0 ? "Hammasi" : `${w}-hafta`}</span>
-                                            <span className="text-[11px] text-gray-500 dark:text-gray-400">
+                                            <span className="text-[11px] font-normal text-gray-500 dark:text-gray-400">
                                                 {done}/{total}
                                             </span>
                                         </div>
-                                        <div className="mt-1.5 h-1 w-full rounded-full bg-gray-100 overflow-hidden dark:bg-gray-800">
+                                        <div className="mt-2 h-1.5 w-full rounded-full bg-gray-100 overflow-hidden dark:bg-gray-800">
                                             <div
-                                                className={`h-full transition-all ${
+                                                className={`h-full transition-all duration-300 ${
                                                     pct === 100 ? "bg-success-500" : "bg-brand-500"
                                                 }`}
                                                 style={{width: `${pct}%`}}
@@ -369,14 +412,12 @@ export default function PlanPage() {
                             })}
                         </div>
 
-                        {/* Filtr va Yangi vazifa qo'shish tugmasi */}
-                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                            <div className="flex items-center gap-3">
-                                <label htmlFor="area-filter" className="sr-only">
-                                    Yo'nalish bo'yicha filtrlash
-                                </label>
+                        {/* Filtr va Yangi vazifa tugmasi */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 font-medium">Yo'nalish:</span>
                                 <select
-                                    id="area-filter"
+                                    aria-label="Yo'nalish bo'yicha filtrlash"
                                     value={area}
                                     onChange={(e) => setArea(e.target.value as GrowthArea | "")}
                                     className={`${INPUT_CLASS} max-w-[220px]`}
@@ -390,35 +431,36 @@ export default function PlanPage() {
                                 </select>
                             </div>
 
-                            <Button
-                                size="sm"
-                                onClick={() => setDraft(emptyDraft(week))}
-                                className="min-h-[44px]"
-                            >
-                                + Yangi vazifa
-                            </Button>
+                            <span className="text-xs text-gray-400">
+                                Ko'rsatilmoqda: <span className="font-semibold text-gray-700 dark:text-gray-300">{visible.length} ta</span> vazifa
+                            </span>
                         </div>
                     </div>
 
                     {/* Vazifalar jadvali */}
-                    <div className="mt-4">
+                    <div className="mt-5">
                         <CommonTable data={visible} columns={columns} isPending={isPending}/>
                         {!isPending && visible.length === 0 && (
-                            <div className="p-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                                Tanlangan filtr bo'yicha vazifalar mavjud emas. Yangi vazifa qo'shishingiz mumkin.
+                            <div className="p-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                                Tanlangan filtr bo'yicha hech qanday vazifa topilmadi.
                             </div>
                         )}
                     </div>
-                </ComponentCard>
+                </div>
             </div>
 
-            {/* Qo'shish / Tahrirlash Modali (Barcha maydonlarda ko'rinadigan <label>) */}
-            <Modal isOpen={Boolean(draft)} onClose={() => setDraft(null)} className="max-w-[640px] m-4 p-6 sm:p-8">
+            {/* Qo'shish / Tahrirlash Modali */}
+            <Modal isOpen={Boolean(draft)} onClose={() => setDraft(null)} className="max-w-[640px] m-4 p-6 sm:p-8 rounded-2xl">
                 {draft && (
                     <div className="space-y-4">
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                            {draft.id ? "Vazifani tahrirlash" : "Yangi vazifa qo'shish"}
-                        </h3>
+                        <div className="border-b border-gray-100 pb-3 dark:border-gray-800">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                                {draft.id ? "Vazifani tahrirlash" : "Yangi vazifa qo'shish"}
+                            </h3>
+                            <p className="mt-0.5 text-xs text-gray-500">
+                                8 haftalik sotuv rejasiga yangi maqsad yoki operatsion vazifa biriktiring
+                            </p>
+                        </div>
 
                         <div>
                             <label htmlFor="task-title" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -472,14 +514,14 @@ export default function PlanPage() {
 
                             <div>
                                 <label htmlFor="task-code" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Kod (ixtiyoriy)
+                                    Kod (masalan M4)
                                 </label>
                                 <input
                                     id="task-code"
                                     value={draft.code}
                                     onChange={(e) => setDraft({...draft, code: e.target.value})}
                                     className={INPUT_CLASS}
-                                    placeholder="Masalan: M4"
+                                    placeholder="M4"
                                 />
                             </div>
                         </div>
@@ -545,7 +587,7 @@ export default function PlanPage() {
                             />
                         </div>
 
-                        <div className="flex items-center justify-end gap-3 pt-2">
+                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
                             <Button variant="outline" onClick={() => setDraft(null)} className="min-h-[44px]">
                                 Bekor qilish
                             </Button>
@@ -556,6 +598,6 @@ export default function PlanPage() {
                     </div>
                 )}
             </Modal>
-        </>
+        </div>
     );
 }
