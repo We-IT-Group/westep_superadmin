@@ -3,8 +3,11 @@ import {getItem} from "../../utils/utils.ts";
 import {
     createAppLanguage,
     createOrUpdateTranslation,
+    deleteAppLanguage,
+    getAdminAppLanguages,
     getAdminTranslations,
-    getAppLanguages
+    getAppLanguages,
+    updateAppLanguage
 } from "./appTranslationApi.ts";
 import {TranslationFilters} from "../../types/types.ts";
 
@@ -23,12 +26,49 @@ export const useGetAppLanguages = () =>
         retry: false,
     });
 
+export const useGetAdminAppLanguages = () =>
+    useQuery({
+        queryKey: ["admin-app-languages"],
+        queryFn: async () => {
+            requireToken();
+            return await getAdminAppLanguages();
+        },
+        retry: false,
+    });
+
+function invalidateLanguages(qc: ReturnType<typeof useQueryClient>) {
+    return Promise.all([
+        qc.invalidateQueries({queryKey: ["app-languages"]}),
+        qc.invalidateQueries({queryKey: ["admin-app-languages"]}),
+    ]);
+}
+
 export const useCreateAppLanguage = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: createAppLanguage,
         onSuccess: async () => {
-            await qc.invalidateQueries({queryKey: ["app-languages"]});
+            await invalidateLanguages(qc);
+        },
+    });
+};
+
+export const useUpdateAppLanguage = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: updateAppLanguage,
+        onSuccess: async () => {
+            await invalidateLanguages(qc);
+        },
+    });
+};
+
+export const useDeleteAppLanguage = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: deleteAppLanguage,
+        onSuccess: async () => {
+            await invalidateLanguages(qc);
         },
     });
 };

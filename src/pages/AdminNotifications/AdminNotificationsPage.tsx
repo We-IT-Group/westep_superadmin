@@ -8,7 +8,6 @@ import {
     useGetScheduledNotifications,
     useGetStudentRecipients
 } from "../../api/adminNotifications/useAdminNotification.ts";
-import ComponentCard from "../../components/common/ComponentCard";
 import DeleteModal from "../../components/common/DeleteModal.tsx";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
@@ -22,16 +21,15 @@ import {
     ScheduledNotificationFormValues,
     ScheduledNotificationStatus
 } from "../../types/types.ts";
+import {PaperPlaneIcon} from "../../icons";
 
 const DEFAULT_TIMEZONE = "Asia/Tashkent";
 const PAGE_SIZE = 20;
 
 function formatDateTime(value?: string | null) {
     if (!value) return "—";
-
     const parsed = new Date(value);
     if (Number.isNaN(parsed.getTime())) return value;
-
     return parsed.toLocaleString("uz-UZ");
 }
 
@@ -40,18 +38,32 @@ function formatScheduledAtForRequest(value: string) {
     return value.length === 16 ? `${value}:00` : value;
 }
 
-function StatusBadge({status}: { status: ScheduledNotificationStatus }) {
-    const toneClass = {
-        DRAFT: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
-        SCHEDULED: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300",
-        SENDING: "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-300",
-        SENT: "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-300",
-        CANCELLED: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
-        FAILED: "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-300",
-    }[status];
-
-    return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${toneClass}`}>{status}</span>;
-}
+const STATUS_CONFIG: Record<ScheduledNotificationStatus, { label: string; tone: string }> = {
+    DRAFT: {
+        label: "Qoralama",
+        tone: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700",
+    },
+    SCHEDULED: {
+        label: "Rejalashtirilgan",
+        tone: "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300 border-blue-200 dark:border-blue-500/20",
+    },
+    SENDING: {
+        label: "Yuborilmoqda",
+        tone: "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300 border-amber-200 dark:border-amber-500/20",
+    },
+    SENT: {
+        label: "Yetkazildi",
+        tone: "bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-300 border-success-200 dark:border-success-500/20",
+    },
+    CANCELLED: {
+        label: "Bekor qilingan",
+        tone: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700",
+    },
+    FAILED: {
+        label: "Xatolik",
+        tone: "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-300 border-red-200 dark:border-red-500/20",
+    },
+};
 
 export default function AdminNotificationsPage() {
     const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -107,53 +119,81 @@ export default function AdminNotificationsPage() {
                                     : [...prev, row.original.id],
                             );
                         }}
+                        className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900"
                     />
                 );
             },
         },
-        {accessorKey: "firstname", header: "Ism"},
-        {accessorKey: "lastname", header: "Familiya"},
-        {accessorKey: "phoneNumber", header: "Telefon"},
+        {accessorKey: "firstname", header: "Ismi"},
+        {accessorKey: "lastname", header: "Familiyasi"},
+        {accessorKey: "phoneNumber", header: "Telefon raqami"},
     ], [selectedRecipientIds]);
 
     const scheduledColumns: ColumnDef<ScheduledNotification>[] = useMemo(() => [
-        {accessorKey: "title", header: "Sarlavha"},
+        {
+            accessorKey: "title",
+            header: "Xabarnoma",
+            cell: ({row}) => (
+                <div>
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                        {row.original.title}
+                    </p>
+                    <p className="line-clamp-1 text-xs text-gray-500 dark:text-gray-400">
+                        {row.original.body}
+                    </p>
+                </div>
+            ),
+        },
         {
             accessorKey: "scheduledAt",
-            header: "Lokal vaqt",
-            cell: ({row}) => formatDateTime(row.original.scheduledAt),
+            header: "Rejalashtirilgan vaqt",
+            cell: ({row}) => (
+                <span className="text-xs text-gray-700 dark:text-gray-300">
+                    {formatDateTime(row.original.scheduledAt)}
+                </span>
+            ),
         },
         {
             accessorKey: "status",
             header: "Holat",
-            cell: ({row}) => <StatusBadge status={row.original.status}/>,
+            cell: ({row}) => {
+                const conf = STATUS_CONFIG[row.original.status] || {
+                    label: row.original.status,
+                    tone: "bg-gray-100 text-gray-700",
+                };
+                return (
+                    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${conf.tone}`}>
+                        {conf.label}
+                    </span>
+                );
+            },
         },
         {
             accessorKey: "totalRecipients",
-            header: "Recipientlar",
+            header: "Qamrov",
             cell: ({row}) => (
-                <div className="text-sm text-gray-600 dark:text-gray-300">
-                    <div>Jami: {row.original.totalRecipients}</div>
-                    <div>Pending: {row.original.pendingRecipients}</div>
-                    <div>Sent: {row.original.sentRecipients}</div>
-                    <div>Failed: {row.original.failedRecipients}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                    <span className="font-medium text-gray-900 dark:text-white">
+                        {row.original.totalRecipients} ta
+                    </span>
+                    <span className="ml-1 text-[11px] text-gray-400">
+                        ({row.original.sentRecipients} yuborildi)
+                    </span>
                 </div>
             ),
         },
         {
             id: "actions",
-            header: "",
+            header: "Amallar",
             cell: ({row}) => {
-                const canCancel = row.original.status === "SCHEDULED" || row.original.status === "DRAFT";
-                if (!canCancel) return null;
-
+                if (row.original.status !== "SCHEDULED") return <span className="text-xs text-gray-400">—</span>;
                 return (
                     <Button
                         size="sm"
                         variant="danger"
                         onClick={() => setCancelTarget(row.original)}
                     >
-                        Cancel
+                        Bekor qilish
                     </Button>
                 );
             },
@@ -168,14 +208,17 @@ export default function AdminNotificationsPage() {
             timezone: DEFAULT_TIMEZONE,
         },
         validationSchema: Yup.object({
-            title: Yup.string().trim().required("Title kiriting"),
-            body: Yup.string().trim().required("Body kiriting"),
-            scheduledAt: Yup.string().required("Reja vaqtini kiriting"),
-            timezone: Yup.string().trim().required("Timezone kiriting"),
+            title: Yup.string().trim().required("Sarlavhani kiriting"),
+            body: Yup.string().trim().required("Matnni kiriting"),
+            scheduledAt: Yup.string().required("Vaqtni tanlang"),
+            timezone: Yup.string().required("Timezoneni kiriting"),
         }),
-        onSubmit: async (values, helpers) => {
-            if (!selectedRecipientIds.length) {
-                setToast({message: "Kamida bitta student tanlang", type: "error"});
+        onSubmit: async (values, {resetForm}) => {
+            if (selectedRecipientIds.length === 0) {
+                setToast({
+                    message: "Kamida bitta studentni tanlang",
+                    type: "error",
+                });
                 return;
             }
 
@@ -184,19 +227,17 @@ export default function AdminNotificationsPage() {
                     title: values.title.trim(),
                     body: values.body.trim(),
                     scheduledAt: formatScheduledAtForRequest(values.scheduledAt),
-                    timezone: values.timezone.trim(),
+                    timezone: values.timezone.trim() || DEFAULT_TIMEZONE,
                     recipientUserIds: selectedRecipientIds,
                 });
-                helpers.resetForm({
-                    values: {
-                        title: "",
-                        body: "",
-                        scheduledAt: "",
-                        timezone: DEFAULT_TIMEZONE,
-                    },
+                setToast({
+                    message: "Notification rejalashtirildi",
+                    type: "success",
                 });
+                resetForm();
                 setSelectedRecipientIds([]);
-                setToast({message: "Notification rejalashtirildi", type: "success"});
+                setRecipientSearch("");
+                setRecipientPage(0);
             } catch (error) {
                 setToast({
                     message: error instanceof Error ? error.message : "Notification rejalashtirilmadi",
@@ -206,45 +247,64 @@ export default function AdminNotificationsPage() {
         },
     });
 
+    const recipientPageCount = Math.max(1, Math.ceil((recipientsResponse?.totalElements || 0) / PAGE_SIZE));
+    const scheduledPageCount = Math.max(1, Math.ceil((scheduledResponse?.totalElements || 0) / PAGE_SIZE));
     const selectedRecipientsCount = selectedRecipientIds.length;
-    const recipientPageCount = recipientsResponse ? Math.max(Math.ceil(recipientsResponse.totalElements / recipientsResponse.size), 1) : 1;
-    const scheduledPageCount = scheduledResponse ? Math.max(Math.ceil(scheduledResponse.totalElements / scheduledResponse.size), 1) : 1;
 
     return (
         <>
-            {toast && <StatusToast message={toast.message} type={toast.type} onClose={() => setToast(null)}/>}
-            <PageMeta title="Scheduled notificationlar" description="Studentlarga rejalashtirilgan notification yuborish"/>
-            <PageBreadcrumb pageTitle="Scheduled notificationlar"/>
+            {toast && <StatusToast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+            <PageMeta title="Bildirishnomalar | Westep Admin" description="Rejalashtirilgan push bildirishnomalar" />
+            <PageBreadcrumb pageTitle="Bildirishnomalar" />
 
             <div className="space-y-6">
-                <ComponentCard
-                    title="Notification rejalashtirish"
-                    desc="Student recipientlarni tanlang va notificationni lokal vaqt bilan rejalashtiring."
-                >
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            formik.handleSubmit();
-                            return false;
-                        }}
-                        className="space-y-6"
-                    >
-                        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+                {/* Header Information Strip */}
+                <div className="rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div className="flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
+                            <PaperPlaneIcon className="h-5 w-5" />
+                        </span>
+                        <div>
+                            <h2 className="text-base font-semibold text-gray-900 dark:text-white">
+                                Push Bildirishnomalar Markazi
+                            </h2>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                O'quvchilarga kerakli sana va vaqtda avtomatik yetib boradigan tizimli push xabarnomalar
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Form to Schedule a Notification */}
+                <div className="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white border-b border-gray-100 pb-3 dark:border-gray-800">
+                        Yangi bildirishnoma rejalashtirish
+                    </h3>
+
+                    <form onSubmit={formik.handleSubmit} className="mt-4 space-y-5">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <Label htmlFor="notification-title">Title</Label>
+                                <Label htmlFor="notification-title">
+                                    Sarlavha <span className="text-error-500">*</span>
+                                </Label>
                                 <input
                                     id="notification-title"
                                     name="title"
                                     value={formik.values.title}
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
-                                    className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-                                    placeholder="Bugungi dars"
+                                    className="mt-1.5 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-3.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                    placeholder="Masalan: Bugungi tarbiya vazifasi tayyor!"
                                 />
-                                {formik.touched.title && formik.errors.title ? <p className="mt-1.5 text-xs text-error-500">{formik.errors.title}</p> : null}
+                                {formik.touched.title && formik.errors.title ? (
+                                    <p className="mt-1 text-xs text-error-500">{formik.errors.title}</p>
+                                ) : null}
                             </div>
+
                             <div>
-                                <Label htmlFor="notification-scheduled-at">Scheduled at</Label>
+                                <Label htmlFor="notification-scheduled-at">
+                                    Yuborish vaqti <span className="text-error-500">*</span>
+                                </Label>
                                 <input
                                     id="notification-scheduled-at"
                                     name="scheduledAt"
@@ -252,47 +312,38 @@ export default function AdminNotificationsPage() {
                                     value={formik.values.scheduledAt}
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
-                                    className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                                    className="mt-1.5 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-3.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                                 />
-                                {formik.touched.scheduledAt && formik.errors.scheduledAt ? <p className="mt-1.5 text-xs text-error-500">{formik.errors.scheduledAt}</p> : null}
+                                {formik.touched.scheduledAt && formik.errors.scheduledAt ? (
+                                    <p className="mt-1 text-xs text-error-500">{formik.errors.scheduledAt}</p>
+                                ) : null}
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                            <div>
-                                <Label htmlFor="notification-body">Body</Label>
-                                <textarea
-                                    id="notification-body"
-                                    name="body"
-                                    rows={5}
-                                    value={formik.values.body}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-                                    placeholder="Soat 19:00 da yangi darsni ko'ring."
-                                />
-                                {formik.touched.body && formik.errors.body ? <p className="mt-1.5 text-xs text-error-500">{formik.errors.body}</p> : null}
-                            </div>
-                            <div>
-                                <Label htmlFor="notification-timezone">Timezone</Label>
-                                <input
-                                    id="notification-timezone"
-                                    name="timezone"
-                                    value={formik.values.timezone}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-                                />
-                                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                    Hozir default timezone: {DEFAULT_TIMEZONE}
-                                </p>
-                            </div>
+                        <div>
+                            <Label htmlFor="notification-body">
+                                Xabar matni (Body) <span className="text-error-500">*</span>
+                            </Label>
+                            <textarea
+                                id="notification-body"
+                                name="body"
+                                rows={3}
+                                value={formik.values.body}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                className="mt-1.5 w-full rounded-lg border border-gray-300 bg-transparent px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                placeholder="Ilovaga kiring va bugungi odatni bajarib 5 coin oling."
+                            />
+                            {formik.touched.body && formik.errors.body ? (
+                                <p className="mt-1 text-xs text-error-500">{formik.errors.body}</p>
+                            ) : null}
                         </div>
 
-                        <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+                        {/* Recipient Selection Sub-block */}
+                        <div className="rounded-xl border border-gray-200/80 p-4 dark:border-gray-800">
                             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                                 <div className="flex-1 min-w-[260px]">
-                                    <Label htmlFor="recipient-search">Student qidirish</Label>
+                                    <Label htmlFor="recipient-search">O'quvchini qidirish</Label>
                                     <input
                                         id="recipient-search"
                                         value={recipientSearch}
@@ -300,31 +351,32 @@ export default function AdminNotificationsPage() {
                                             setRecipientSearch(e.target.value);
                                             setRecipientPage(0);
                                         }}
-                                        className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-                                        placeholder="Ism yoki telefon"
+                                        className="mt-1.5 h-10 w-full rounded-lg border border-gray-300 bg-transparent px-3.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                        placeholder="Ism yoki telefon..."
                                     />
                                 </div>
-                                <div className="rounded-lg bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
-                                    Tanlangan studentlar: {selectedRecipientsCount}
+                                <div className="rounded-lg bg-brand-50 px-3.5 py-2 text-xs font-semibold text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
+                                    Tanlangan o'quvchilar: {selectedRecipientsCount} nafar
                                 </div>
                             </div>
 
                             {recipientsError ? (
-                                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
-                                    {recipientsError instanceof Error ? recipientsError.message : "Recipientlar yuklanmadi"}
+                                <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+                                    {recipientsError instanceof Error ? recipientsError.message : "O'quvchilar yuklanmadi"}
                                 </div>
                             ) : null}
 
-                            <CommonTable data={recipients} columns={recipientColumns} isPending={recipientsPending}/>
+                            <CommonTable data={recipients} columns={recipientColumns} isPending={recipientsPending} />
 
-                            <div className="mt-4 flex items-center justify-between gap-3">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    Jami: {recipientsResponse?.totalElements || 0} ta student, sahifa {recipientPage + 1} / {recipientPageCount}
-                                </p>
-                                <div className="flex items-center gap-3">
+                            <div className="mt-3 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
+                                <span>
+                                    Jami: {recipientsResponse?.totalElements || 0} ta o'quvchi
+                                </span>
+                                <div className="flex items-center gap-2">
                                     <Button
                                         type="button"
                                         variant="outline"
+                                        size="sm"
                                         disabled={recipientPage === 0}
                                         onClick={() => setRecipientPage((prev) => Math.max(prev - 1, 0))}
                                     >
@@ -333,6 +385,7 @@ export default function AdminNotificationsPage() {
                                     <Button
                                         type="button"
                                         variant="outline"
+                                        size="sm"
                                         disabled={recipientPage + 1 >= recipientPageCount}
                                         onClick={() => setRecipientPage((prev) => prev + 1)}
                                     >
@@ -342,56 +395,81 @@ export default function AdminNotificationsPage() {
                             </div>
                         </div>
 
-                        <div className="flex justify-end">
+                        <div className="flex justify-end pt-2">
                             <Button type="submit" isPending={isCreating} disabled={isCreating}>
-                                Rejalashtirish
+                                <PaperPlaneIcon className="h-4 w-4 mr-1.5" />
+                                Bildirishnomani rejalashtirish
                             </Button>
                         </div>
                     </form>
-                </ComponentCard>
+                </div>
 
-                <ComponentCard
-                    title="Scheduled notificationlar"
-                    desc="Status bo'yicha filter qiling va kerak bo'lsa rejalashtirilgan yuborishni bekor qiling."
-                >
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => {
-                                setStatusFilter(e.target.value as ScheduledNotificationStatus | "");
-                                setScheduledPage(0);
-                            }}
-                            className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-                        >
-                            <option value="">Barcha statuslar</option>
-                            <option value="DRAFT">DRAFT</option>
-                            <option value="SCHEDULED">SCHEDULED</option>
-                            <option value="SENDING">SENDING</option>
-                            <option value="SENT">SENT</option>
-                            <option value="CANCELLED">CANCELLED</option>
-                            <option value="FAILED">FAILED</option>
-                        </select>
-                        <div className="rounded-lg bg-gray-100 px-4 py-3 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                            Jami: {scheduledResponse?.totalElements || 0}
+                {/* Scheduled Notifications History Table */}
+                <div className="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                            Rejadagi va yuborilgan xabarnomalar
+                        </h3>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                            Jami: {scheduledResponse?.totalElements || 0} ta
                         </div>
                     </div>
 
+                    {/* Filter Tabs */}
+                    <div className="mt-4 flex flex-wrap items-center gap-1.5 pb-2">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setStatusFilter("");
+                                setScheduledPage(0);
+                            }}
+                            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                                statusFilter === ""
+                                    ? "bg-brand-500 text-white shadow-sm"
+                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                            }`}
+                        >
+                            Barchasi
+                        </button>
+                        {Object.entries(STATUS_CONFIG).map(([value, conf]) => {
+                            const isCurrent = statusFilter === value;
+                            return (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    onClick={() => {
+                                        setStatusFilter(value as ScheduledNotificationStatus);
+                                        setScheduledPage(0);
+                                    }}
+                                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                                        isCurrent
+                                            ? "bg-brand-500 text-white shadow-sm"
+                                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                                    }`}
+                                >
+                                    {conf.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+
                     {scheduledError ? (
-                        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
-                            {scheduledError instanceof Error ? scheduledError.message : "Scheduled notificationlar yuklanmadi"}
+                        <div className="my-3 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+                            {scheduledError instanceof Error ? scheduledError.message : "Xabarnomalar yuklanmadi"}
                         </div>
                     ) : null}
 
-                    <CommonTable data={scheduledItems} columns={scheduledColumns} isPending={scheduledPending}/>
+                    <CommonTable data={scheduledItems} columns={scheduledColumns} isPending={scheduledPending} />
 
-                    <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="mt-4 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
+                        <span>
                             Sahifa {scheduledPage + 1} / {scheduledPageCount}
-                        </p>
-                        <div className="flex items-center gap-3">
+                        </span>
+                        <div className="flex items-center gap-2">
                             <Button
                                 type="button"
                                 variant="outline"
+                                size="sm"
                                 disabled={scheduledPage === 0}
                                 onClick={() => setScheduledPage((prev) => Math.max(prev - 1, 0))}
                             >
@@ -400,6 +478,7 @@ export default function AdminNotificationsPage() {
                             <Button
                                 type="button"
                                 variant="outline"
+                                size="sm"
                                 disabled={scheduledPage + 1 >= scheduledPageCount}
                                 onClick={() => setScheduledPage((prev) => prev + 1)}
                             >
@@ -407,7 +486,7 @@ export default function AdminNotificationsPage() {
                             </Button>
                         </div>
                     </div>
-                </ComponentCard>
+                </div>
             </div>
 
             <DeleteModal
@@ -420,10 +499,10 @@ export default function AdminNotificationsPage() {
                     if (!cancelTarget) return;
                     try {
                         await cancelScheduledNotification(cancelTarget.id);
-                        setToast({message: "Notification bekor qilindi", type: "success"});
+                        setToast({message: "Bildirishnoma bekor qilindi", type: "success"});
                     } catch (error) {
                         setToast({
-                            message: error instanceof Error ? error.message : "Notification bekor qilinmadi",
+                            message: error instanceof Error ? error.message : "Bildirishnoma bekor qilinmadi",
                             type: "error",
                         });
                     } finally {

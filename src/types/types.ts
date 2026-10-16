@@ -225,6 +225,7 @@ export interface CourseModerationCourse {
     studentsCount: number;
     price?: number | null;
     lessonsCount: number;
+    targetAgeGroups?: string[];
     createdAt?: string;
     publishedAt?: string | null;
 }
@@ -245,18 +246,6 @@ export interface BusinessDomainFormValues {
     landingHost: string;
     studentHost: string;
     active: boolean;
-}
-
-export interface CourseLanguage {
-    id: string;
-    name: string;
-    code: string;
-    active: boolean;
-}
-
-export interface CourseLanguageFormValues {
-    name: string;
-    code: string;
 }
 
 export interface TaxonomyCategory {

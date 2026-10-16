@@ -22,18 +22,6 @@ export const login = async ({phone, password}: { phone: string; password: string
     }
 };
 
-// export const register = async (body: BusinessType) => {
-//     try {
-//         const response = await apiClient.post("/business/register", body);
-//         return response;
-//     } catch (error) {
-//         console.log(error);
-//         const err = error as AxiosError<{ message: string }>;
-//         const message = err.response?.data?.message;
-//         throw new Error(message);
-//     }
-// };
-
 export const getCurrentUser = async () => {
     const {data} = await apiClient.get("/user/me");
     return data;

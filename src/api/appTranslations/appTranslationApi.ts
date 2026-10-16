@@ -19,12 +19,41 @@ export const getAppLanguages = async (): Promise<AppLanguage[]> => {
     return data;
 };
 
+export const getAdminAppLanguages = async (): Promise<AppLanguage[]> => {
+    const {data} = await apiClient.get("/admin/taxonomy/app-languages");
+    return data;
+};
+
 export const createAppLanguage = async (body: AppLanguageFormValues): Promise<AppLanguage> => {
     try {
         const {data} = await apiClient.post("/admin/taxonomy/app-languages", body);
         return data;
     } catch (error) {
         throw new Error(extractMessage(error, "Til saqlanmadi"));
+    }
+};
+
+export const updateAppLanguage = async (
+    body: AppLanguageFormValues & { id: string },
+): Promise<AppLanguage> => {
+    try {
+        const {data} = await apiClient.put(`/admin/taxonomy/app-languages/${body.id}`, {
+            name: body.name,
+            code: body.code,
+            defaultLanguage: body.defaultLanguage,
+            active: body.active,
+        });
+        return data;
+    } catch (error) {
+        throw new Error(extractMessage(error, "Til yangilanmadi"));
+    }
+};
+
+export const deleteAppLanguage = async (id: string): Promise<void> => {
+    try {
+        await apiClient.delete(`/admin/taxonomy/app-languages/${id}`);
+    } catch (error) {
+        throw new Error(extractMessage(error, "Til o'chmadi"));
     }
 };
 

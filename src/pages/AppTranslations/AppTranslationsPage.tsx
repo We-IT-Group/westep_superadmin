@@ -5,17 +5,21 @@ import {ColumnDef} from "@tanstack/react-table";
 import ComponentCard from "../../components/common/ComponentCard";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
+import DeleteModal from "../../components/common/DeleteModal.tsx";
 import Label from "../../components/form/Label.tsx";
 import StatusToast from "../../components/paymentSettings/StatusToast.tsx";
 import CommonTable from "../../components/tables/CommonTable/CommonTable.tsx";
 import Button from "../../components/ui/button/Button.tsx";
 import {Modal} from "../../components/ui/modal";
-import {PencilIcon} from "../../icons";
+import {PencilIcon, TrashBinIcon} from "../../icons";
 import {
     useCreateAppLanguage,
     useCreateOrUpdateTranslation,
+    useDeleteAppLanguage,
+    useGetAdminAppLanguages,
     useGetAdminTranslations,
-    useGetAppLanguages
+    useGetAppLanguages,
+    useUpdateAppLanguage
 } from "../../api/appTranslations/useAppTranslation.ts";
 import {
     AppLanguage,
@@ -78,20 +82,20 @@ function AppLanguageFormModal({
     onClose,
     isPending,
     onSubmit,
+    initialValues,
+    mode,
 }: {
     isOpen: boolean;
     onClose: () => void;
     isPending: boolean;
     onSubmit: (values: AppLanguageFormValues) => Promise<void>;
+    initialValues: AppLanguageFormValues;
+    mode: "create" | "edit";
 }) {
     const [formError, setFormError] = useState("");
     const formik = useFormik<AppLanguageFormValues>({
-        initialValues: {
-            name: "",
-            code: "",
-            defaultLanguage: false,
-            active: true,
-        },
+        initialValues,
+        enableReinitialize: true,
         validationSchema: Yup.object({
             name: Yup.string().trim().required("Til nomini kiriting"),
             code: Yup.string().trim().required("Til kodini kiriting"),
@@ -115,8 +119,17 @@ function AppLanguageFormModal({
         },
     });
 
+    const isEdit = mode === "edit";
+    const defaultLocked = isEdit && initialValues.defaultLanguage;
+    const activeLocked = isEdit && initialValues.defaultLanguage;
+
     return (
-        <FormModal isOpen={isOpen} onClose={onClose} title="Ilova tili qo'shish" description="Yangi til kodi va nomini kiriting.">
+        <FormModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={isEdit ? "Ilova tilini tahrirlash" : "Ilova tili qo'shish"}
+            description={isEdit ? "Til ma'lumotlarini yangilang." : "Yangi til kodi va nomini kiriting."}
+        >
             <form onSubmit={(e) => { e.preventDefault(); formik.handleSubmit(); }} className="space-y-5">
                 {formError && <ErrorState message={formError}/>}
                 <div>
@@ -149,8 +162,12 @@ function AppLanguageFormModal({
                         name="defaultLanguage"
                         checked={formik.values.defaultLanguage}
                         onChange={formik.handleChange}
+                        disabled={defaultLocked}
                     />
                     Default til
+                    {defaultLocked && (
+                        <span className="text-xs text-gray-400">(joriy default tilni bekor qilish uchun boshqa tilni default qiling)</span>
+                    )}
                 </label>
                 <label className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
                     <input
@@ -158,8 +175,12 @@ function AppLanguageFormModal({
                         name="active"
                         checked={formik.values.active}
                         onChange={formik.handleChange}
+                        disabled={activeLocked}
                     />
                     Faol
+                    {activeLocked && (
+                        <span className="text-xs text-gray-400">(default til doim faol bo'lishi kerak)</span>
+                    )}
                 </label>
                 <div className="flex justify-end gap-3">
                     <Button type="button" variant="outline" onClick={onClose}>Bekor qilish</Button>
@@ -314,9 +335,18 @@ const initialTranslationValues: TranslationFormValues = {
     active: true,
 };
 
+const emptyLanguageValues: AppLanguageFormValues = {
+    name: "",
+    code: "",
+    defaultLanguage: false,
+    active: true,
+};
+
 export default function AppTranslationsPage() {
     const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
     const [languageModalOpen, setLanguageModalOpen] = useState(false);
+    const [editingLanguage, setEditingLanguage] = useState<AppLanguage | null>(null);
+    const [deletingLanguage, setDeletingLanguage] = useState<AppLanguage | null>(null);
     const [translationModalOpen, setTranslationModalOpen] = useState(false);
     const [editingTranslation, setEditingTranslation] = useState<TranslationItem | null>(null);
     const [filters, setFilters] = useState<TranslationFilters>({
@@ -327,16 +357,24 @@ export default function AppTranslationsPage() {
         size: 20,
     });
 
-    const {data: languages = [], isPending: languagesPending, error: languagesError} = useGetAppLanguages();
+    const {data: publicLanguages = []} = useGetAppLanguages();
+    const {
+        data: languages = [],
+        isPending: languagesPending,
+        error: languagesError,
+    } = useGetAdminAppLanguages();
     const {
         data: translationsResponse,
         isPending: translationsPending,
         error: translationsError,
     } = useGetAdminTranslations(filters);
     const {mutateAsync: createLanguage, isPending: createLanguagePending} = useCreateAppLanguage();
+    const {mutateAsync: updateLanguage, isPending: updateLanguagePending} = useUpdateAppLanguage();
+    const {mutateAsync: deleteLanguage, isPending: deleteLanguagePending} = useDeleteAppLanguage();
     const {mutateAsync: saveTranslation, isPending: saveTranslationPending} = useCreateOrUpdateTranslation();
 
     const translationItems = translationsResponse?.items || [];
+    const translationLanguages = publicLanguages.length ? publicLanguages : languages.filter((language) => language.active);
 
     const languageColumns: ColumnDef<AppLanguage>[] = useMemo(() => [
         {accessorKey: "name", header: "Til"},
@@ -357,7 +395,40 @@ export default function AppTranslationsPage() {
                 </span>
             ),
         },
-    ], []);
+        {
+            id: "actions",
+            header: "",
+            cell: ({row}) => (
+                <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setEditingLanguage(row.original);
+                            setLanguageModalOpen(true);
+                        }}
+                        className="flex items-center text-green-600 hover:text-green-800"
+                    >
+                        <PencilIcon className="text-2xl"/>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setDeletingLanguage(row.original)}
+                        disabled={row.original.defaultLanguage || languages.length <= 1}
+                        className="flex items-center text-red-600 hover:text-red-800 disabled:cursor-not-allowed disabled:text-gray-300"
+                        title={
+                            row.original.defaultLanguage
+                                ? "Default tilni o'chirib bo'lmaydi"
+                                : languages.length <= 1
+                                    ? "Oxirgi tilni o'chirib bo'lmaydi"
+                                    : undefined
+                        }
+                    >
+                        <TrashBinIcon className="text-2xl"/>
+                    </button>
+                </div>
+            ),
+        },
+    ], [languages.length]);
 
     const translationColumns: ColumnDef<TranslationItem>[] = useMemo(() => [
         {accessorKey: "languageCode", header: "Til"},
@@ -387,9 +458,29 @@ export default function AppTranslationsPage() {
         },
     ], []);
 
-    const handleCreateLanguage = async (values: AppLanguageFormValues) => {
-        await createLanguage(values);
-        setToast({message: "Ilova tili yaratildi", type: "success"});
+    const handleSaveLanguage = async (values: AppLanguageFormValues) => {
+        if (editingLanguage) {
+            await updateLanguage({id: editingLanguage.id, ...values});
+            setToast({message: "Ilova tili yangilandi", type: "success"});
+        } else {
+            await createLanguage(values);
+            setToast({message: "Ilova tili yaratildi", type: "success"});
+        }
+        setEditingLanguage(null);
+    };
+
+    const handleDeleteLanguage = async () => {
+        if (!deletingLanguage) return;
+        try {
+            await deleteLanguage(deletingLanguage.id);
+            setToast({message: "Ilova tili o'chirildi", type: "success"});
+            if (filters.languageId === deletingLanguage.id) {
+                setFilters((prev) => ({...prev, languageId: "", page: 0}));
+            }
+            setDeletingLanguage(null);
+        } catch (error) {
+            setToast({message: error instanceof Error ? error.message : "Til o'chmadi", type: "error"});
+        }
     };
 
     const handleSaveTranslation = async (values: TranslationFormValues) => {
@@ -405,10 +496,18 @@ export default function AppTranslationsPage() {
             <PageBreadcrumb pageTitle="Ilova tillari va tarjimalar"/>
 
             <div className="space-y-6">
-                <ComponentCard title="Ilova tillari" desc="Faol tillar ro'yxati va yangi til qo'shish">
+                <ComponentCard title="Ilova tillari" desc="Barcha tillar ro'yxati. Kurslar uchun ham, ilova tarjimasi uchun ham aynan shu tillar ishlatiladi.">
                     {languagesError && <ErrorState message={languagesError instanceof Error ? languagesError.message : "Tillar yuklanmadi"}/>}
                     <div className="flex justify-end">
-                        <Button size="sm" onClick={() => setLanguageModalOpen(true)}>Til qo'shish</Button>
+                        <Button
+                            size="sm"
+                            onClick={() => {
+                                setEditingLanguage(null);
+                                setLanguageModalOpen(true);
+                            }}
+                        >
+                            Til qo'shish
+                        </Button>
                     </div>
                     <CommonTable data={languages} columns={languageColumns} isPending={languagesPending}/>
                 </ComponentCard>
@@ -425,7 +524,7 @@ export default function AppTranslationsPage() {
                                 className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                             >
                                 <option value="">Til tanlang</option>
-                                {languages.map((language) => (
+                                {translationLanguages.map((language) => (
                                     <option key={language.id} value={language.id}>{language.name} ({language.code})</option>
                                 ))}
                             </select>
@@ -500,9 +599,28 @@ export default function AppTranslationsPage() {
 
             <AppLanguageFormModal
                 isOpen={languageModalOpen}
-                onClose={() => setLanguageModalOpen(false)}
-                isPending={createLanguagePending}
-                onSubmit={handleCreateLanguage}
+                onClose={() => {
+                    setLanguageModalOpen(false);
+                    setEditingLanguage(null);
+                }}
+                isPending={createLanguagePending || updateLanguagePending}
+                onSubmit={handleSaveLanguage}
+                mode={editingLanguage ? "edit" : "create"}
+                initialValues={editingLanguage ? {
+                    name: editingLanguage.name,
+                    code: editingLanguage.code,
+                    defaultLanguage: editingLanguage.defaultLanguage,
+                    active: editingLanguage.active,
+                } : emptyLanguageValues}
+            />
+
+            <DeleteModal
+                open={Boolean(deletingLanguage)}
+                setOpen={(open) => {
+                    if (!open) setDeletingLanguage(null);
+                }}
+                deleteFunction={handleDeleteLanguage}
+                isPending={deleteLanguagePending}
             />
 
             <TranslationFormModal
@@ -511,7 +629,7 @@ export default function AppTranslationsPage() {
                     setTranslationModalOpen(false);
                     setEditingTranslation(null);
                 }}
-                languages={languages}
+                languages={translationLanguages}
                 initialValues={editingTranslation ? {
                     languageId: editingTranslation.languageId,
                     namespace: editingTranslation.namespace,
