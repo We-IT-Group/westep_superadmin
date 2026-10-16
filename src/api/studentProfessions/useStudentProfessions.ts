@@ -1,6 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {getItem} from "../../utils/utils.ts";
-import {getStudentProfessions, reviewStudentProfession} from "./studentProfessionApi.ts";
+import {getStudentFit, getStudentProfessions, reviewStudentProfession} from "./studentProfessionApi.ts";
 
 export const useGetStudentProfessions = (status: string, page: number, size: number) =>
     useQuery({
@@ -21,3 +21,12 @@ export const useReviewStudentProfession = () => {
         onSuccess: () => queryClient.invalidateQueries({queryKey: ["student-professions"]}),
     });
 };
+
+/** Mentor: bolaning barcha kasblarga mosligi (modal ochilganda yuklanadi). */
+export const useStudentFit = (userId: string | null) =>
+    useQuery({
+        queryKey: ["student-fit", userId],
+        queryFn: () => getStudentFit(userId as string),
+        enabled: Boolean(userId),
+        retry: false,
+    });

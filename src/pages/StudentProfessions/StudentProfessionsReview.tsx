@@ -10,6 +10,7 @@ import {StudentProfessionItem} from "../../api/studentProfessions/studentProfess
 import {
     useGetStudentProfessions,
     useReviewStudentProfession,
+    useStudentFit,
 } from "../../api/studentProfessions/useStudentProfessions.ts";
 import {GroupIcon} from "../../icons";
 
@@ -42,6 +43,8 @@ export default function StudentProfessionsReviewPage() {
     const [size] = useState(25);
     const [reselecting, setReselecting] = useState<StudentProfessionItem | null>(null);
     const [note, setNote] = useState("");
+    const [fitFor, setFitFor] = useState<StudentProfessionItem | null>(null);
+    const fitQuery = useStudentFit(fitFor?.userId ?? null);
     const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
     const {data, isPending} = useGetStudentProfessions(status, page, size);
@@ -137,8 +140,14 @@ export default function StudentProfessionsReviewPage() {
         {
             id: "actions",
             header: "Amallar",
-            cell: ({row}) =>
-                row.original.status === "UNDER_REVIEW" ? (
+            cell: ({row}) => (
+                <div className="flex items-center gap-2">
+                    {row.original.userId ? (
+                        <Button size="sm" variant="outline" onClick={() => setFitFor(row.original)}>
+                            Moslik
+                        </Button>
+                    ) : null}
+                    {row.original.status === "UNDER_REVIEW" ? (
                     <div className="flex items-center gap-2">
                         <Button
                             size="sm"
@@ -158,9 +167,9 @@ export default function StudentProfessionsReviewPage() {
                             Qayta tanlashga
                         </Button>
                     </div>
-                ) : (
-                    <span className="text-xs text-gray-400">—</span>
-                ),
+                    ) : null}
+                </div>
+            ),
         },
     ];
 
@@ -216,6 +225,61 @@ export default function StudentProfessionsReviewPage() {
                 {/* Main Table */}
                 <CommonTable data={items} columns={columns} isPending={isPending} />
             </div>
+
+            {/* Bolaning kasblarga mosligi */}
+            <Modal isOpen={Boolean(fitFor)} onClose={() => setFitFor(null)} className="max-w-[640px] m-4 p-6 sm:p-7">
+                {fitFor && (
+                    <div className="space-y-4">
+                        <div className="border-b border-gray-100 pb-3 dark:border-gray-800">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Kasblarga moslik</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Qiziqish testi natijasi bo'yicha: qiziqish 60%, kuchli tomonlar 25%, qadriyatlar 15%. Tanlangan kasb belgilangan.
+                            </p>
+                        </div>
+                        {fitQuery.isPending ? (
+                            <p className="text-sm text-gray-500">Yuklanmoqda...</p>
+                        ) : fitQuery.isError ? (
+                            <p className="text-sm text-red-600">{fitQuery.error.message}</p>
+                        ) : !fitQuery.data?.hasQuizResult ? (
+                            <p className="text-sm text-gray-500">Bola hali qiziqish testini topshirmagan.</p>
+                        ) : (
+                            <ul className="max-h-[60vh] space-y-2 overflow-y-auto pr-1">
+                                {[...(fitQuery.data?.recommendations ?? [])]
+                                    .sort((a, b) => (b.fit ?? -1) - (a.fit ?? -1))
+                                    .map((rec) => {
+                                        const chosen = rec.professionId === fitFor.professionId;
+                                        return (
+                                            <li
+                                                key={rec.professionId}
+                                                className={`rounded-xl border p-3 ${chosen ? "border-brand-500 bg-brand-50/50 dark:bg-brand-500/10" : "border-gray-200 dark:border-gray-800"}`}
+                                            >
+                                                <div className="flex items-center justify-between gap-3">
+                                                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                        {rec.emoji} {rec.title ?? rec.slug} {chosen ? "· tanlangan" : ""}
+                                                    </span>
+                                                    <span className="text-sm font-bold tabular-nums text-gray-700 dark:text-gray-200">
+                                                        {rec.fit != null ? `${rec.fit}%` : "—"}
+                                                    </span>
+                                                </div>
+                                                {rec.fitParts ? (
+                                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                        Qiziqish {rec.fitParts.interest ?? "—"} · Kuchli tomon {rec.fitParts.strengths ?? "—"} · Qadriyat {rec.fitParts.values ?? "—"}
+                                                    </p>
+                                                ) : null}
+                                                {rec.matches?.length || rec.gaps?.length ? (
+                                                    <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                                                        {rec.matches?.length ? `Mos: ${rec.matches.map((m) => m.label).join(", ")}. ` : ""}
+                                                        {rec.gaps?.length ? `O'stirish: ${rec.gaps.map((g) => g.label).join(", ")}.` : ""}
+                                                    </p>
+                                                ) : null}
+                                            </li>
+                                        );
+                                    })}
+                            </ul>
+                        )}
+                    </div>
+                )}
+            </Modal>
 
             {/* Accessible Reselect Modal */}
             <Modal

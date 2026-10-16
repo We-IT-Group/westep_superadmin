@@ -10,6 +10,7 @@ export type StudentProfessionStatusValue =
 
 export interface StudentProfessionItem {
     id: string;
+    userId?: string | null;
     professionId: string;
     slug: string;
     emoji?: string | null;
@@ -20,6 +21,28 @@ export interface StudentProfessionItem {
     reviewNote?: string | null;
     selectedAt?: string | null;
     confirmedAt?: string | null;
+}
+
+export interface ProfessionFitPart {
+    key: string;
+    label: string;
+    score: number;
+}
+
+export interface StudentFitItem {
+    professionId: string;
+    slug: string;
+    title?: string | null;
+    emoji?: string | null;
+    fit?: number | null;
+    fitParts?: { interest: number | null; strengths: number | null; values: number | null } | null;
+    matches?: ProfessionFitPart[];
+    gaps?: ProfessionFitPart[];
+}
+
+export interface StudentFitResponse {
+    hasQuizResult: boolean;
+    recommendations: StudentFitItem[];
 }
 
 export interface StudentProfessionPage {
@@ -33,6 +56,15 @@ function extractMessage(error: unknown, fallback: string) {
     const err = error as AxiosError<{ message?: string }>;
     return err.response?.data?.message || fallback;
 }
+
+export const getStudentFit = async (userId: string): Promise<StudentFitResponse> => {
+    try {
+        const {data} = await apiClient.get(`/admin/student-professions/students/${userId}/fit`);
+        return data;
+    } catch (error) {
+        throw new Error(extractMessage(error, "Moslikni yuklab bo'lmadi"));
+    }
+};
 
 export const getStudentProfessions = async (
     status: string,
