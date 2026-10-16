@@ -97,7 +97,7 @@ export default function StudentProfessionsReviewPage() {
         },
         {
             accessorKey: "matchScore",
-            header: "Moslik bali",
+            header: "Umumiy tavsiya bali",
             cell: ({row}) => {
                 const score = row.original.matchScore;
                 if (score == null) return <span className="text-gray-400">—</span>;
